@@ -18,7 +18,7 @@ add_subdirectory(submodules)
 file(GLOB_RECURSE crosscordsources CONFIGURE_DEPENDS "src/crosscord/*.cpp")
 file(GLOB_RECURSE crosscord_headers CONFIGURE_DEPENDS "src/crosscord/*.h")
 
-add_executable(crosscord SHARED ${crosscord_sources} ${crosscord_headers})
+add_executable(crosscord ${crosscord_sources} ${crosscord_headers})
 target_link_libraries(crosscord PRIVATE
     nlohmann_json
     imgui)
