@@ -4,6 +4,3 @@
 [submodule "submodules/imgui"]
 	path = submodules/imgui
 	url = https://github.com/ocornut/imgui
-[submodule "submodules/fmt"]
-	path = submodules/fmt
-	url = https://github.com/fmtlib/fmt
