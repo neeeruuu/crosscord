@@ -15,18 +15,23 @@ add_subdirectory(submodules)
 # ------------------------------------------------------
 # dll
 # ------------------------------------------------------
-file(GLOB_RECURSE crosscordsources CONFIGURE_DEPENDS "src/crosscord/*.cpp")
+file(GLOB_RECURSE crosscord_sources CONFIGURE_DEPENDS "src/crosscord/*.cpp")
 file(GLOB_RECURSE crosscord_headers CONFIGURE_DEPENDS "src/crosscord/*.h")
 
 add_executable(crosscord ${crosscord_sources} ${crosscord_headers})
 target_link_libraries(crosscord PRIVATE
-    nlohmann_json
-    imgui)
+	nlohmann_json
+	opengl32
+    imgui
+	glfw
+	fmt)
 target_include_directories(crosscord PRIVATE "src/crosscord")
 set_target_properties(crosscord PROPERTIES
     VS_DEBUGGER_WORKING_DIRECTORY $<TARGET_FILE_DIR:crosscord>
     OUTPUT_NAME "crosscord"
 )
+
+set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT crosscord) # shouldn't cmake detect this automatically?
 
 # ------------------------------------------------------
 # merge files from source and include them in the ide
