@@ -4,9 +4,12 @@
 [submodule "submodules/imgui"]
 	path = submodules/imgui
 	url = https://github.com/ocornut/imgui
+	branch = docking
 [submodule "submodules/fmt"]
 	path = submodules/fmt
 	url = https://github.com/fmtlib/fmt
 [submodule "submodules/glfw"]
 	path = submodules/glfw
 	url = https://github.com/glfw/glfw
+[submodule "imgui"]
+	branch = docking
