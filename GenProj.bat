@@ -8,5 +8,3 @@ cd proj
 cmake ../
 
 cd ..
-
-pause
