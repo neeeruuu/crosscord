@@ -2,6 +2,7 @@
 
 #include "gl.h"
 #include "ui.h"
+#include "overlay.h"
 
 #include <future>
 
@@ -51,11 +52,13 @@ int main(int, char**) {
 	LogInfo("Creating threads");
 	std::vector<std::future<bool>> vFutures;
 	vFutures.push_back(std::async(std::launch::async, &CGLManager::InitializeAndRun, CGLManager::Get()));
+	vFutures.push_back(std::async(std::launch::async, &COverlay::RenderThread, COverlay::Get()));
+	vFutures.push_back(std::async(std::launch::async, &COverlay::DetectionThread, COverlay::Get()));
 
 	LogInfo("Initializing components");
 	InitializeComponent("UI", CInterface);
+	LogInfo("Ready");
 
-	LogInfo("Awaiting threads");
 	std::chrono::milliseconds ThreadWaitTime(THREAD_WAIT_RATE);
 	bool bThreadHalted = false;
 	while (!bThreadHalted) {
