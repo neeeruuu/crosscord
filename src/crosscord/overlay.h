@@ -1,6 +1,7 @@
 #pragma once
 
 #include "util/macros.h"
+#include "util/callbacks.h"
 
 #include <mutex>
 
@@ -52,3 +53,5 @@ private:
 
 	COverlay() {};
 };
+
+inline CCallbackEvent* g_CB_OverlayDraw = new CCallbackEvent();

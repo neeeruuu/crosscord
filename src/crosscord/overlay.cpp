@@ -19,10 +19,7 @@
 INITIALIZE_SINGLETON(COverlay);
 
 bool COverlay::SetPixel(SPixel* pPixel) {
-	if (!m_FrameInfo)
-		return;
-
-	if (pPixel->x > m_FrameInfo->m_Width || pPixel->y > m_FrameInfo->m_Height)
+	if (!m_FrameInfo || pPixel->x > m_FrameInfo->m_Width || pPixel->y > m_FrameInfo->m_Height)
 		return false;
 	
 	SColor* pPixelBuffer = reinterpret_cast<SColor*>(&m_FrameInfo->m_Pixels[0]);
@@ -40,6 +37,7 @@ bool COverlay::RenderThread() {
 
 		if (m_FrameInfo->m_Frame != m_LastFrameId) {
 			// draw here
+			g_CB_OverlayDraw->Run(m_FrameInfo);
 			m_FrameInfo->m_Frame++;
 		}
 		m_LastFrameId = m_FrameInfo->m_Frame;
