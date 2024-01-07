@@ -1,11 +1,26 @@
 #include "util/log.h"
 
+#include "gl.h"
+#include "ui.h"
+
+#include <future>
+
 #include <libloaderapi.h>
+
+
+#define InitializeComponent(Name, ClassName) \
+	LogInfo("Initializing " Name);\
+	if (!ClassName::Get()->Initialize()) {\
+		ReportError(Name " failed to initialize");\
+		return 1;\
+	}
 
 // from: WinUser.h
 #define MB_OK                       0x00000000L
 #define MB_ICONHAND                 0x00000010L
 #define MB_ICONERROR                MB_ICONHAND
+
+#define THREAD_WAIT_RATE 1000 / 60
 
 void ReportError(const char* cErrorMessage) {
 	LogError("Fatal error ocurred during initialization - {}", cErrorMessage);
@@ -32,6 +47,36 @@ int main(int, char**) {
 	LogInit("crosscord", fmt::format("{}\\logs\\", sModulePath).c_str());
 
 	LogInfo("Initializing");
+
+	LogInfo("Creating threads");
+	std::vector<std::future<bool>> vFutures;
+	vFutures.push_back(std::async(std::launch::async, &CGLManager::InitializeAndRun, CGLManager::Get()));
+
+	LogInfo("Initializing components");
+	InitializeComponent("UI", CInterface);
+
+	LogInfo("Awaiting threads");
+	std::chrono::milliseconds ThreadWaitTime(THREAD_WAIT_RATE);
+	bool bThreadHalted = false;
+	while (!bThreadHalted) {
+		for (std::future<bool>& Future : vFutures) {
+			std::future_status Status = Future.wait_for(ThreadWaitTime);
+
+			if (Status != std::future_status::ready)
+				continue;
+
+			if (!Future.get())
+				LogWarning("Thread stopped with error");
+
+			bThreadHalted = true;
+			break;
+		}
+	}
+	vFutures.clear();
+
+	LogInfo("Shutting down");
+	CInterface::Get()->Shutdown();
+	CGLManager::Get()->Shutdown();
 
 	return 0;
 }
