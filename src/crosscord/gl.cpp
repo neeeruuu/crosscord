@@ -49,6 +49,8 @@ bool CGLManager::InitializeAndRun() {
 
 void CGLManager::Shutdown() { m_ShutdownQueued = true; }
 
+void* CGLManager::GetWindowHandle() { return m_hWnd; }
+
 void CGLManager::RenderLoop() {
 	while (!glfwWindowShouldClose(m_Window) && !m_ShutdownQueued) {
 		glfwPollEvents();

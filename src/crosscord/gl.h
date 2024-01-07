@@ -9,6 +9,8 @@ public:
 	bool InitializeAndRun();
 	void Shutdown();
 
+	void* GetWindowHandle();
+
 	__int64 _m_OriginalWndProc = 0;
 private:
 	void RenderLoop();
