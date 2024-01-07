@@ -1,0 +1,54 @@
+#pragma once
+
+#include "util/macros.h"
+
+#include <mutex>
+
+struct SColor {
+	unsigned char r, g, b, a;
+};
+
+struct SPixel {
+	unsigned int x, y;
+	SColor col;
+};
+
+struct SFrameInfo {
+	unsigned int m_Header;
+	unsigned int m_Frame;
+	unsigned int _;
+	unsigned int m_Width;
+	unsigned int m_Height;
+	SColor m_Pixels[1];
+};
+
+class COverlay {
+	DECLARE_SINGLETON(COverlay);
+public:
+	void Shutdown() { m_ShutdownQueued = true; }
+
+	bool RenderThread();
+	bool DetectionThread();
+
+	bool SetPixel(SPixel* pPixel);
+
+	char* GetActiveWindowName() { return m_TargetWindowName; }
+private:
+	bool m_ShutdownQueued = false;
+	
+	unsigned int m_LastFrameId = 0;
+
+	char m_TargetWindowName[64] = { 0 };
+	unsigned long m_TargetProcessId = 0;
+
+	void* m_MapFile = nullptr;
+	void* m_MapView = nullptr;
+
+	SFrameInfo* m_FrameInfo = nullptr;
+
+	std::mutex m_MapMutex;
+
+	bool AdquireMap(int iProcessId);
+
+	COverlay() {};
+};
