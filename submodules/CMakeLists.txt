@@ -23,5 +23,5 @@ target_include_directories(imgui PUBLIC imgui)
 # ---------------------------
 # imgui-filebrowser
 # ---------------------------
-add_library(imgui_filebrowser STATIC "imgui-filebrowser/imfilebrowser.h")
-target_include_directories(imgui_filebrowser PUBLIC "imgui-filebrowser")
+add_library(imgui_filebrowser INTERFACE)
+target_include_directories(imgui_filebrowser INTERFACE "imgui-filebrowser")
