@@ -15,7 +15,7 @@ public:
 	void _AddIcon();
 	void _ProcessMessage(void* hWnd, unsigned int uMsg, unsigned __int64 wParam, __int64 lParam);
 private:
-	void ProcessCommand(int iCommandId);
+	void ProcessCommand(unsigned __int64 iCommandId);
 	void DrawContextMenu(void* hWnd);
 
 	CTray() {};

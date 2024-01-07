@@ -13,7 +13,7 @@
 INITIALIZE_SINGLETON(CTray);
 
 bool CTray::Initialize() {
-	m_Callbacks.push_back(g_CB_GLInit->Register([](void* pWindow) { CTray::Get()->_AddIcon(); }, true));
+	m_Callbacks.push_back(g_CB_GLInit->Register([](void* /*pWindow*/) { CTray::Get()->_AddIcon(); }, true));
 	m_Callbacks.push_back(g_CB_WndProc->Register([](void* hWnd, unsigned int uMsg, unsigned __int64 wParam, __int64 lParam) { CTray::Get()->_ProcessMessage(hWnd, uMsg, wParam, lParam); }, true));
 	return true;
 }
@@ -54,7 +54,7 @@ void CTray::_ProcessMessage(void* hWnd, unsigned int uMsg, unsigned __int64 wPar
 	}
 }
 
-void CTray::ProcessCommand(int iCommandId) {
+void CTray::ProcessCommand(unsigned __int64 iCommandId) {
 	switch (iCommandId) {
 	case 1:
 		CGLManager::Get()->Shutdown();

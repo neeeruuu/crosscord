@@ -16,7 +16,6 @@ bool CGLManager::InitializeAndRun() {
 		return false;
 	}
 
-	const char* cGLSLVer = "#version 130";
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 	glfwWindowHint(GLFW_VISIBLE, 0);
