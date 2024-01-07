@@ -13,3 +13,6 @@
 	url = https://github.com/glfw/glfw
 [submodule "imgui"]
 	branch = docking
+[submodule "submodules/imgui-filebrowser"]
+	path = submodules/imgui-filebrowser
+	url = https://github.com/AirGuanZ/imgui-filebrowser

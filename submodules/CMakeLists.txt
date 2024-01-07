@@ -19,3 +19,9 @@ add_library(imgui STATIC
 target_link_libraries(imgui PRIVATE glfw)
 target_compile_options(imgui PRIVATE /W4 /WX /Zi /MT /Gy /Gm- /Zl /Od)
 target_include_directories(imgui PUBLIC imgui)
+
+# ---------------------------
+# imgui-filebrowser
+# ---------------------------
+add_library(imgui_filebrowser STATIC "imgui-filebrowser/imfilebrowser.h")
+target_include_directories(imgui_filebrowser PUBLIC "imgui-filebrowser")
