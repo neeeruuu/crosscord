@@ -13,9 +13,6 @@
 #include <thread>
 #include <chrono>
 
-#define RENDER_TIMING 1000 / 120
-#define DETECTION_TIMING 500
-
 INITIALIZE_SINGLETON(COverlay);
 
 bool COverlay::SetPixel(SPixel* pPixel) {
