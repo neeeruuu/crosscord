@@ -2,6 +2,7 @@
 
 #include "gl.h"
 #include "ui.h"
+#include "tray.h"
 #include "overlay.h"
 
 #include <future>
@@ -49,14 +50,16 @@ int main(int, char**) {
 
 	LogInfo("Initializing");
 
+	LogInfo("Initializing components");
+	InitializeComponent("UI", CInterface);
+	InitializeComponent("Tray", CTray);
+
 	LogInfo("Creating threads");
 	std::vector<std::future<bool>> vFutures;
 	vFutures.push_back(std::async(std::launch::async, &CGLManager::InitializeAndRun, CGLManager::Get()));
 	vFutures.push_back(std::async(std::launch::async, &COverlay::RenderThread, COverlay::Get()));
 	vFutures.push_back(std::async(std::launch::async, &COverlay::DetectionThread, COverlay::Get()));
 
-	LogInfo("Initializing components");
-	InitializeComponent("UI", CInterface);
 	LogInfo("Ready");
 
 	std::chrono::milliseconds ThreadWaitTime(THREAD_WAIT_RATE);
@@ -75,11 +78,14 @@ int main(int, char**) {
 			break;
 		}
 	}
-	vFutures.clear();
 
 	LogInfo("Shutting down");
 	CInterface::Get()->Shutdown();
+	CTray::Get()->Shutdown();
+	COverlay::Get()->Shutdown();
 	CGLManager::Get()->Shutdown();
+
+	vFutures.clear();
 
 	return 0;
 }
