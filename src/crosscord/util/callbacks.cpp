@@ -18,22 +18,6 @@ CCallback::~CCallback() {
 /*
 	CCallbackEvent implementation
 */
-//template <typename... T>
-//void CCallbackEvent::Run(T... Arguments) {
-//	if (!m_DeletionQueue.empty()) {
-//		for (CCallback*& pCallback : m_Callbacks) {
-//			std::vector<CCallback*>::iterator Iter = std::find(m_Callbacks.begin(), m_Callbacks.end(), pCallback);
-//			if (Iter != m_Callbacks.end())
-//				m_Callbacks.erase(Iter);
-//		}
-//		m_DeletionQueue.clear();
-//	}
-//
-//	for (CCallback*& pCallback : m_Callbacks)
-//		if (pCallback->m_Active)
-//			reinterpret_cast<void(*)(T...)>(pCallback->m_Function)(std::format<T>(Arguments)...);
-//}
-
 CCallback* CCallbackEvent::Register(void* pFunction, bool bActive) {
 	CCallback* pCallback = new CCallback(this, pFunction, bActive);
 	m_Callbacks.push_back(pCallback);
