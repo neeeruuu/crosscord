@@ -30,11 +30,10 @@ jobs:
       working-directory: ${{github.workspace}}\proj
       run: cmake --build . --config MinSizeRel
 
-    - name: Release draft
-      uses: "marvinpinto/action-automatic-releases@latest"
+    - name: Release
+      uses: softprops/action-gh-release@v1
       with:
-        repo_token: "${{ secrets.GITHUB_TOKEN }}"
+        tag_name: v${{ steps.tags.outputs.new_version }}
+        name: "v${{ steps.tags.outputs.new_version }} - Automatic build"
         prerelease: true
-        title: "v${{ steps.tags.outputs.new_version }} - Automatic build"
-        automatic_release_tag: ${{ steps.tags.outputs.new_tag  }}
         files: ${{github.workspace}}\proj\build\MinSizeRel\crosscord.exe
