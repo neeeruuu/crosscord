@@ -80,16 +80,16 @@ void CCrosshair::_Draw(SFrameInfo* pFrameInfo, SCrosshairSettings* pSettings) {
 			if (iPosX - pSettings->m_ArrowLength < 0)
 				return;
 
-			for (int iDiag = 0; iDiag < pSettings->m_ArrowLength; iDiag++) {
+			for (unsigned int iDiag = 0; iDiag < pSettings->m_ArrowLength; iDiag++) {
 				unsigned int iBaseX, iY;
 				iY = iPosY + iDiag;
 
 				iBaseX = iPosX + iDiag;
-				for (int iX = -pSettings->m_ArrowWidth; iX < pSettings->m_ArrowWidth + 1; iX++)
+				for (int iX = -static_cast<int>(pSettings->m_ArrowWidth); iX < static_cast<int>(pSettings->m_ArrowWidth + 1); iX++)
 					pPixelBuffer[iY * pFrameInfo->m_Width + iBaseX + iX] = TargetColor;
 
 				iBaseX = iPosX - iDiag;
-				for (int iX = -pSettings->m_ArrowWidth; iX < pSettings->m_ArrowWidth + 1; iX++)
+				for (int iX = -static_cast<int>(pSettings->m_ArrowWidth); iX < static_cast<int>(pSettings->m_ArrowWidth + 1); iX++)
 					pPixelBuffer[iY * pFrameInfo->m_Width + iBaseX + iX] = TargetColor;
 			}
 
@@ -126,8 +126,8 @@ void CCrosshair::_Draw(SFrameInfo* pFrameInfo, SCrosshairSettings* pSettings) {
 				}
 			}
 			else {
-				for (int iY = -pSettings->m_CircleRadius; iY <= pSettings->m_CircleRadius; ++iY) {
-					for (int iX = -pSettings->m_CircleRadius; iX <= pSettings->m_CircleRadius; ++iX) {
+				for (int iY = -static_cast<int>(pSettings->m_CircleRadius); iY <= static_cast<int>(pSettings->m_CircleRadius); ++iY) {
+					for (int iX = -static_cast<int>(pSettings->m_CircleRadius); iX <= static_cast<int>(pSettings->m_CircleRadius); ++iX) {
 						unsigned int iDistSquared = iX * iX + iY * iY;
 
 						if (iDistSquared <= pSettings->m_CircleRadius * pSettings->m_CircleRadius) {

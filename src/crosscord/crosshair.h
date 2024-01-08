@@ -20,14 +20,14 @@ struct SCrosshairSettings {
 	float m_Color[4] = { 1.f, 0.f, 0.f, .295f };
 	int m_Offset[2] = { 0 };
 
-	int m_CrossLength = 60;
-	int m_CrossWidth = 3;
-	int m_CrossGap = 0;
+	unsigned int m_CrossLength = 60;
+	unsigned int m_CrossWidth = 3;
+	unsigned int m_CrossGap = 0;
 
-	int m_ArrowLength = 20;
-	int m_ArrowWidth = 2;
+	unsigned int m_ArrowLength = 20;
+	unsigned int m_ArrowWidth = 2;
 
-	int m_CircleRadius = 5;
+	unsigned int m_CircleRadius = 5;
 };
 
 class CCrosshair {
