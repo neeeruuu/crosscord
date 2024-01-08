@@ -13,6 +13,11 @@
 
 //#include <imfilebrowser.h>
 
+/*
+	TO-DO:
+		Refactor menu code
+*/
+
 INITIALIZE_SINGLETON(CInterface);
 
 #define CROSSHAIR_SETTING(Widget) if (Widget) pCrosshair->_SettingChanged();
@@ -38,6 +43,12 @@ void CInterface::_Init(GLFWwindow* pWindow) {
 	const char* cGLSLVer = "#version 130";
 	ImGui_ImplGlfw_InitForOpenGL(pWindow, true);
 	ImGui_ImplOpenGL3_Init(cGLSLVer);
+}
+
+bool SliderUInt(const char* cLabel, unsigned int* pValue, unsigned int iMin, unsigned int iMax, const char* cFmt = "%d", ImGuiSliderFlags Flags = 0) {
+	return ImGui::SliderScalar(	cLabel, ImGuiDataType_U32, reinterpret_cast<void*>(pValue),
+								reinterpret_cast<const void*>(&iMin), reinterpret_cast<const void*>(&iMax),
+								cFmt, Flags);
 }
 
 void CInterface::Draw() {
@@ -121,19 +132,19 @@ void CInterface::Draw() {
 
 			switch (pCrosshair->m_Settings.m_Type) {
 				case CROSSHAIR_CROSS:
-					CROSSHAIR_SETTING(ImGui::SliderInt("Length", &pCrosshair->m_Settings.m_CrossLength, 1, 256));
-					CROSSHAIR_SETTING(ImGui::SliderInt("Width", &pCrosshair->m_Settings.m_CrossWidth, 0, 32));
-					CROSSHAIR_SETTING(ImGui::SliderInt("Gap", &pCrosshair->m_Settings.m_CrossGap, 0, 64));
+					CROSSHAIR_SETTING(SliderUInt("Length", &pCrosshair->m_Settings.m_CrossLength, 1, 256));
+					CROSSHAIR_SETTING(SliderUInt("Width", &pCrosshair->m_Settings.m_CrossWidth, 0, 32));
+					CROSSHAIR_SETTING(SliderUInt("Gap", &pCrosshair->m_Settings.m_CrossGap, 0, 64));
 					CROSSHAIR_SETTING(ImGui::Checkbox("T Style", &pCrosshair->m_Settings.m_CrossTStyle));
 					CROSSHAIR_SETTING(ImGui::Checkbox("Center dot", &pCrosshair->m_Settings.m_CrossDot));
 					break;
 				case CROSSHAIR_CIRCLE:
-					CROSSHAIR_SETTING(ImGui::SliderInt("Radius", &pCrosshair->m_Settings.m_CircleRadius, 1, 64));
+					CROSSHAIR_SETTING(SliderUInt("Radius", &pCrosshair->m_Settings.m_CircleRadius, 1, 64));
 					CROSSHAIR_SETTING(ImGui::Checkbox("Hollow", &pCrosshair->m_Settings.m_CircleHollow));
 					break;
 				case CROSSHAIR_ARROW:
-					CROSSHAIR_SETTING(ImGui::SliderInt("Length", &pCrosshair->m_Settings.m_ArrowLength, 1, 64));
-					CROSSHAIR_SETTING(ImGui::SliderInt("Width", &pCrosshair->m_Settings.m_ArrowWidth, 0, 64));
+					CROSSHAIR_SETTING(SliderUInt("Length", &pCrosshair->m_Settings.m_ArrowLength, 1, 64));
+					CROSSHAIR_SETTING(SliderUInt("Width", &pCrosshair->m_Settings.m_ArrowWidth, 0, 64));
 					break;
 				//case CROSSHAIR_IMAGE:
 				//	CROSSHAIR_SETTING(ImGui::SliderFloat("Size", &pCrosshair->m_Size, 0.1f, 15.f));
