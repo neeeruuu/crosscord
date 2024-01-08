@@ -12,12 +12,23 @@ jobs:
     - uses: actions/checkout@v3
 
     - name: Create project folder
-      run: cmake -E make_directory ${{github.workspace}}/build
+      run: cmake -E make_directory ${{github.workspace}}/proj
 
     - name: Configure
-      working-directory: ${{github.workspace}}/build
-      run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=MinSizeRel -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON
+      working-directory: ${{github.workspace}}/proj
+      run: cmake ../ -DCMAKE_BUILD_TYPE=MinSizeRel -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON
 
     - name: Build
-      working-directory: ${{github.workspace}}/build
+      working-directory: ${{github.workspace}}/proj
       run: cmake --build . --config MinSizeRel
+
+    - name: Release
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      working-directory: ${{github.workspace}}/proj/build/MinSizeRel
+      run: |
+        gh release create "$GITHUB_REF_NAME" \
+        --repo"$GITHUB_REPOSITORY" \
+        --title="${GITHUB_REPOSITORY#*/} ${tag#v}" \
+        --generate-notes
+      
