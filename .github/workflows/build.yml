@@ -36,6 +36,5 @@ jobs:
         body: ${{ steps.tags.outputs.changelog }}
         tag_name: v${{ steps.tags.outputs.new_version }}
         name: "v${{ steps.tags.outputs.new_version }} - Automatic build"
-        prerelease: true
         fail_on_unmatched_files: true
         files: proj/build/MinSizeRel/crosscord.exe
