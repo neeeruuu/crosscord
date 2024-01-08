@@ -15,6 +15,6 @@ public:
 
 	void SetConfigPath(const char* m_Path);
 private:
-	char m_Path[MAX_PATH + 1];
+	char m_Path[MAX_PATH + 1] = { 0 };
 	CConfigManager() {};
 };
