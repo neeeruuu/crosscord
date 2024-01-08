@@ -48,15 +48,16 @@ void CInterface::Draw() {
 	static float fDPIScale = 1.f;
 
 	if (m_ShouldDraw) {
-
 		char* cWindowName = COverlay::Get()->GetActiveWindowName();
 		bool bHasGame = strlen(cWindowName) != 0;
 
-		ImGui::SetNextWindowSize({350 * fDPIScale, 450 * fDPIScale }, ImGuiCond_Once);
+		static ImGuiCond WndSizeCond = ImGuiCond_Once;
+		ImGui::SetNextWindowSize({350 * fDPIScale, 450 * fDPIScale }, WndSizeCond);
+		WndSizeCond = ImGuiCond_Once;
 		ImGui::SetNextWindowSizeConstraints({ 300 * fDPIScale, 400 * fDPIScale }, { 400 * fDPIScale, 500 * fDPIScale });
 		if (ImGui::Begin("CrossCord " CROSSCORD_VER, &m_ShouldDraw, ImGuiWindowFlags_NoCollapse)) {
-			static ImGuiStyle* pStyle = &ImGui::GetStyle();
-			static CCrosshair* pCrosshair = CCrosshair::Get();
+			ImGuiStyle* pStyle = &ImGui::GetStyle();
+			CCrosshair* pCrosshair = CCrosshair::Get();
 
 			if (bHasGame)
 				ImGui::Text("Current process: %s", COverlay::Get()->GetActiveWindowName());
@@ -132,7 +133,7 @@ void CInterface::Draw() {
 					break;
 				case CROSSHAIR_ARROW:
 					CROSSHAIR_SETTING(ImGui::SliderInt("Length", &pCrosshair->m_Settings.m_ArrowLength, 1, 256));
-					CROSSHAIR_SETTING(ImGui::SliderInt("Width", &pCrosshair->m_Settings.m_ArrowWidth, 0, 32));
+					CROSSHAIR_SETTING(ImGui::SliderInt("Width", &pCrosshair->m_Settings.m_ArrowWidth, 0, 64));
 					break;
 				//case CROSSHAIR_IMAGE:
 				//	CROSSHAIR_SETTING(ImGui::SliderFloat("Size", &pCrosshair->m_Size, 0.1f, 15.f));
@@ -150,6 +151,9 @@ void CInterface::Draw() {
 					ImGui::GetPlatformIO().Platform_SetWindowFocus(ImGui::GetWindowViewport());;
 					m_ShouldBringToFront = false;
 				}
+			}
+			if (fDPIScale != ImGui::GetViewportPlatformMonitor(ImGui::GetWindowViewport())->DpiScale) {
+				WndSizeCond = ImGuiCond_Always;
 			}
 			fDPIScale = ImGui::GetViewportPlatformMonitor(ImGui::GetWindowViewport())->DpiScale;
 		}
