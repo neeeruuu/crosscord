@@ -1,0 +1,23 @@
+name: Build
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Create project folder
+      run: cmake -E make_directory ${{github.workspace}}/build
+
+    - name: Configure
+      working-directory: ${{github.workspace}}/build
+      run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=MinSizeRel -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON
+
+    - name: Build
+      working-directory: ${{github.workspace}}/build
+      run: cmake --build . --config MinSizeRel
