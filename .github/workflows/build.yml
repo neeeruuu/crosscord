@@ -13,11 +13,11 @@ jobs:
       with:
         submodules: 'recursive'
 
-    - name: Tag
-      uses: anothrNick/github-tag-action@1.67.0
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        WITH_V: true
+    - name: Bump version, push tag
+      id: tags
+      uses: mathieudutour/github-tag-action@v6.1
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Create project folder
       run: cmake -E make_directory ${{github.workspace}}/proj
@@ -35,6 +35,6 @@ jobs:
       with:
         repo_token: "${{ secrets.GITHUB_TOKEN }}"
         prerelease: true
-        title: "${{ steps.tag.outputs.tag }} - Automatic build"
-        automatic_release_tag: ${{ steps.Tag.outputs.new_tag }}
+        title: "v${{ steps.tags.outputs.new_version }} - Automatic build"
+        automatic_release_tag: ${{ steps.tags.outputs.new_tag  }}
         files: crosscord.exe
