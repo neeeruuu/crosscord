@@ -16,13 +16,16 @@
 3. The moment Discord starts drawing an overlay on a game, CrossCord will draw an overlay on it
 
 # To-do
-- [x] Basic crosshair types (cross, triangle)
-- [x] Settings UI
+- [x] Basic crosshair types (cross, triangle, circle)
+- [x] UI
 - [x] Tray icon
-- [ ] Use PAGE_GUARD or something else for detecting framebuffer changes
-- [ ] Sphere crosshair
-- [ ] Image crosshair
+- [x] Persistent settings
+- [ ] GPU rendering
+- [ ] Image crosshairs
+- [ ] Detect framebuffer changes on memory write
 - [ ] Icon
+- [ ] Keybinds
+- [ ] Well commented source
 
 # Building
 ### Requirements
