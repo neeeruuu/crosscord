@@ -16,7 +16,7 @@ add_subdirectory(submodules)
 # variables
 # ------------------------------------------------------
 if (DEFINED BUILD_VERSION)
-	add_compile_definitions(CROSSCORD_VER=v${BUILD_VERSION })
+	add_compile_definitions(CROSSCORD_VER=v${BUILD_VERSION})
 else()
 	add_compile_definitions(CROSSCORD_VER="dev")
 endif()
