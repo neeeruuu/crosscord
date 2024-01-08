@@ -37,6 +37,7 @@ public:
 	bool SetPixel(SPixel* pPixel);
 
 	char* GetActiveWindowName() { return m_TargetWindowName; }
+	SFrameInfo* GetFrameInfo() { return m_FrameInfo; }
 private:
 	bool m_ShutdownQueued = false;
 	
