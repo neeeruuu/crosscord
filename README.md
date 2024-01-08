@@ -1,7 +1,7 @@
 <h3 align="center">CrossCord</h3>
 
 <p align="center">
-    An anticheat and fullscreen compatible crosshair that uses Discord's overlay
+    An anticheat compatible crosshair that uses Discord's overlay
 </p>
 
 # To-do
