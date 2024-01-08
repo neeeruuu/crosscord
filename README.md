@@ -10,7 +10,6 @@
 * Finish implementing other crosshair types
 * Add custom crosshair support
 * Save config
-* Improve game detection
 
 # Building
 ### Requirements

@@ -13,11 +13,6 @@
 #include <thread>
 #include <chrono>
 
-/*
-	TO-DO:
-		iterate all windows, get PIDs and attempt to get framebuffer from there instead of iterating all fullscreen windows
-*/
-
 INITIALIZE_SINGLETON(COverlay);
 
 bool COverlay::SetPixel(SPixel* pPixel) {
@@ -50,68 +45,50 @@ bool COverlay::DetectionThread() {
 	while (!m_ShutdownQueued) {
 		std::this_thread::sleep_for(std::chrono::milliseconds(DETECTION_TIMING));
 
-		HWND hWnd = GetForegroundWindow();
-		if (!hWnd)
-			continue;
+		HWND hWnd = GetTopWindow(GetDesktopWindow());
+		DWORD dwWndPID = 0;
+		bool bHasMap = false;
 
-		RECT WndRect;
-		if (!GetWindowRect(hWnd, &WndRect))
-			continue;
+		while (hWnd && !bHasMap) {
+			GetWindowThreadProcessId(hWnd, &dwWndPID);
 
-		DWORD dwStyles = static_cast<DWORD>(GetWindowLongPtrA(hWnd, GWL_STYLE));
-		if ((dwStyles & WS_MAXIMIZE) != 0 && (dwStyles & WS_BORDER) != 0)
-			continue;
+			if (dwWndPID && m_TargetProcessId != dwWndPID) {
+				if (AdquireMap(dwWndPID))
+					bHasMap = true;
+			}
 
-		HMONITOR Monitor = MonitorFromRect(&WndRect, MONITOR_DEFAULTTONEAREST);
-		if (!Monitor)
-			continue;
+			hWnd = GetWindow(hWnd, GW_HWNDNEXT);
+		}
 
-		MONITORINFO MonInfo = { 0 };
-		MonInfo.cbSize = sizeof(MonInfo);
-		if (!GetMonitorInfo(Monitor, &MonInfo))
-			continue;
-
-		if (WndRect.left != MonInfo.rcMonitor.left ||
-			WndRect.right != MonInfo.rcMonitor.right ||
-			WndRect.bottom != MonInfo.rcMonitor.bottom ||
-			WndRect.top != MonInfo.rcMonitor.top)
-			continue;
-
-		DWORD dwWndPID;
-		GetWindowThreadProcessId(hWnd, &dwWndPID);
-
-		if (!dwWndPID || m_TargetProcessId == dwWndPID)
-			continue;
-
-		if (!AdquireMap(dwWndPID))
+		if (!hWnd || !bHasMap || !dwWndPID)
 			continue;
 
 		GetWindowTextA(hWnd, m_TargetWindowName, sizeof(m_TargetWindowName));
 		m_TargetProcessId = dwWndPID;
+
+		std::this_thread::sleep_for(std::chrono::milliseconds(DETECTION_TIMING * 5));
 	}
 	return true;
 }
 
-bool COverlay::AdquireMap(int iProcessId) {
-	if (m_MapFile) CloseHandle(m_MapFile);
-	if (m_MapView) UnmapViewOfFile(m_MapView);
-	
-	LogVerbose("Getting Framebuffer pointer for PID: {}", iProcessId);
-
+bool COverlay::AdquireMap(int iProcessId) {	
 	std::string sMapName = fmt::format("DiscordOverlay_Framebuffer_Memory_{}", iProcessId);
 
-	m_MapFile = OpenFileMappingA(FILE_MAP_ALL_ACCESS, false, sMapName.c_str());
-	if (!m_MapFile) {
-		LogError("Couldn't obtain framebuffer mapping for PID {}", iProcessId);
+	void* pMapFile = OpenFileMappingA(FILE_MAP_ALL_ACCESS, false, sMapName.c_str());
+	if (!pMapFile)
+		return false;
+
+	void* pMapView;
+	pMapView = MapViewOfFile(pMapFile, FILE_MAP_ALL_ACCESS, 0, 0, 0);
+	if (!pMapView) {
+		CloseHandle(pMapFile);
 		return false;
 	}
 
-	m_MapView = MapViewOfFile(m_MapFile, FILE_MAP_ALL_ACCESS, 0, 0, 0);
-	if (!m_MapView) {
-		CloseHandle(m_MapFile);
-		LogError("Couldn't obtain framebuffer view address for PID {}", iProcessId);
-		return false;
-	}
+	if (m_MapFile) CloseHandle(m_MapFile);
+	if (m_MapView) UnmapViewOfFile(m_MapView);
+	m_MapFile = pMapFile;
+	m_MapView = pMapView;
 
 	m_FrameInfo = reinterpret_cast<SFrameInfo*>(m_MapView);
 	m_LastFrameId = m_FrameInfo->m_Frame;
