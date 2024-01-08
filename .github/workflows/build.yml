@@ -30,9 +30,6 @@ jobs:
       working-directory: ${{github.workspace}}\proj
       run: cmake --build . --config MinSizeRel
 
-    - name: Where the hell are my files going
-      run: dir "proj\build\MinSizeRel"
-
     - name: Release
       uses: softprops/action-gh-release@v1
       with:
