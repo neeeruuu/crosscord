@@ -24,8 +24,8 @@ jobs:
       working-directory: ${{github.workspace}}/proj
       run: cmake --build . --config MinSizeRel
 
-    - name: Create release
+    - name: Release
       env:
         GH_TOKEN: ${{ github.token }}
       working-directory: ${{github.workspace}}/proj/build/MinSizeRel
-      run: gh release create ${GITHUB_REF#refs/*/} crosscord.exe --generate-notes
+      run: gh release create latest --repo=${GITHUB_REF_NAME} --title="Automated build" crosscord.exe --generate-notes
