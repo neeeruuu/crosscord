@@ -13,6 +13,12 @@ jobs:
       with:
         submodules: 'recursive'
 
+    - name: Tag
+      uses: anothrNick/github-tag-action@1.67.0
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        WITH_V: true
+
     - name: Create project folder
       run: cmake -E make_directory ${{github.workspace}}/proj
 
@@ -24,8 +30,11 @@ jobs:
       working-directory: ${{github.workspace}}/proj
       run: cmake --build . --config MinSizeRel
 
-    - name: Release
-      env:
-        GH_TOKEN: ${{ github.token }}
-      working-directory: ${{github.workspace}}/proj/build/MinSizeRel
-      run: gh release create latest --repo=${GITHUB_REF_NAME} --title="Automated build" crosscord.exe --generate-notes
+    - name: Release draft
+      uses: "marvinpinto/action-automatic-releases@latest"
+      with:
+        repo_token: "${{ secrets.GITHUB_TOKEN }}"
+        prerelease: true
+        title: "${{ steps.tag.outputs.tag }} - Automatic build"
+        automatic_release_tag: ${{ steps.Tag.outputs.new_tag }}
+        files: crosscord.exe
