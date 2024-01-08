@@ -40,4 +40,4 @@ jobs:
         tag_name: v${{ steps.tags.outputs.new_version }}
         name: "v${{ steps.tags.outputs.new_version }} - Automatic build"
         prerelease: true
-        files: ${{github.workspace}}\proj\build\MinSizeRel\*.exe
+        files: ${{github.workspace}}\proj\build\MinSizeRel\crosscord.exe
