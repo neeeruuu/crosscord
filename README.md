@@ -9,7 +9,6 @@
 * Implement image crosshairs
 * Finish implementing other crosshair types
 * Add custom crosshair support
-* Config saving / loading
 
 # Building
 ### Requirements
