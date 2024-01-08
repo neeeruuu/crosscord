@@ -7,7 +7,7 @@ on:
 jobs:
   build:
     runs-on: windows-latest
-
+    permissions: write-all
     steps:
     - uses: actions/checkout@v3
       with:
@@ -18,19 +18,19 @@ jobs:
 
     - name: Configure
       working-directory: ${{github.workspace}}/proj
-      run: cmake ../ -DCMAKE_BUILD_TYPE=MinSizeRel -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON
+      run: cmake ../ -DCMAKE_BUILD_TYPE=MinSizeRel
 
     - name: Build
       working-directory: ${{github.workspace}}/proj
       run: cmake --build . --config MinSizeRel
 
-    - name: Release
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Create zip
       working-directory: ${{github.workspace}}/proj/build/MinSizeRel
-      run: |
-        gh release create "$GITHUB_REF_NAME" \
-        --repo"$GITHUB_REPOSITORY" \
-        --title="${GITHUB_REPOSITORY#*/} ${tag#v}" \
-        --generate-notes
-      
+      run: Compress-Archive * crosscord.zip
+
+    - name: Create release
+      run: gh release create ${GITHUB_REF#refs/*/} -t ${GITHUB_REF#refs/*/} --generate-notes
+        
+    - name: Upload
+      working-directory: ${{github.workspace}}/proj/build/MinSizeRel
+      run: gh release upload  ${GITHUB_REF#refs/*/} crosscord.zip
