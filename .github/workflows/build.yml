@@ -28,4 +28,4 @@ jobs:
       env:
         GH_TOKEN: ${{ github.token }}
       working-directory: ${{github.workspace}}/proj/build/MinSizeRel
-      run: gh release create ${GITHUB_REF#refs/*/} -t ${GITHUB_REF#refs/*/} crosscord.exe --generate-notes
+      run: gh release create ${GITHUB_REF#refs/*/} crosscord.exe --generate-notes
