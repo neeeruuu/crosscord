@@ -13,6 +13,11 @@
 #include <thread>
 #include <chrono>
 
+/*
+	TO-DO:
+		iterate all windows, get PIDs and attempt to get framebuffer from there instead of iterating all fullscreen windows
+*/
+
 INITIALIZE_SINGLETON(COverlay);
 
 bool COverlay::SetPixel(SPixel* pPixel) {
@@ -33,7 +38,6 @@ bool COverlay::RenderThread() {
 			continue;
 
 		if (m_FrameInfo->m_Frame != m_LastFrameId) {
-			// draw here
 			g_CB_OverlayDraw->Run(m_FrameInfo);
 			m_FrameInfo->m_Frame++;
 		}
@@ -113,5 +117,8 @@ bool COverlay::AdquireMap(int iProcessId) {
 	m_LastFrameId = m_FrameInfo->m_Frame;
 
 	LogVerbose("MapView obtained: {}", reinterpret_cast<void*>(m_MapView));
+
+	m_FrameInfo->m_Frame++; 
+
 	return true;
 }
