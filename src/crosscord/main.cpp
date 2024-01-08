@@ -4,6 +4,7 @@
 #include "ui.h"
 #include "tray.h"
 #include "overlay.h"
+#include "crosshair.h"
 
 #include <future>
 
@@ -53,6 +54,7 @@ int main(int, char**) {
 	LogInfo("Initializing components");
 	InitializeComponent("UI", CInterface);
 	InitializeComponent("Tray", CTray);
+	InitializeComponent("Crosshair renderer", CCrosshair);
 
 	LogInfo("Creating threads");
 	std::vector<std::future<bool>> vFutures;
