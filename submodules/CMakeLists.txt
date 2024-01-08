@@ -18,10 +18,10 @@ add_library(imgui STATIC
     imgui/backends/imgui_impl_win32.h)
 target_link_libraries(imgui PRIVATE glfw)
 target_compile_options(imgui PRIVATE /W4 /WX /Zi /MT /Gy /Gm- /Zl /Od)
-target_include_directories(imgui PUBLIC imgui)
+target_include_directories(imgui SYSTEM PUBLIC imgui)
 
 # ---------------------------
 # imgui-filebrowser
 # ---------------------------
-add_library(imgui_filebrowser INTERFACE)
-target_include_directories(imgui_filebrowser INTERFACE "imgui-filebrowser")
+# add_library(imgui_filebrowser INTERFACE)
+# target_include_directories(imgui_filebrowser SYSTEM INTERFACE "imgui-filebrowser")
