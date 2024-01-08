@@ -10,8 +10,10 @@
 
 #include <future>
 
-#include <libloaderapi.h>
+#include <processenv.h>
 
+#include <consoleapi.h>
+#include <libloaderapi.h>
 
 #define InitializeComponent(Name, ClassName) \
 	LogInfo("Initializing " Name);\
@@ -19,6 +21,9 @@
 		ReportError(Name " failed to initialize");\
 		return 1;\
 	}
+
+// from: WinBase.h
+#define STD_OUTPUT_HANDLE ((DWORD)-11)
 
 // from: WinUser.h
 #define MB_OK                       0x00000000L
@@ -42,15 +47,26 @@ void ReportError(const char* cErrorMessage) {
 	MessageBoxA(0, cErrorMessage, "crosscord failed to load", MB_ICONERROR | MB_OK);
 }
 
-int main(int, char**) {
+int WinMain(HINSTANCE, HINSTANCE, PSTR, int) {
 	char cModuleName[MAX_PATH];
 	GetModuleFileNameA(reinterpret_cast<HMODULE>(GetModuleHandleA(NULL)), cModuleName, MAX_PATH);
-
 	std::string sModuleName(cModuleName);
 	std::string sModulePath = sModuleName.substr(0, sModuleName.find_last_of('\\'));
-
 	memcpy(g_cModulePath, sModulePath.c_str(), sModulePath.length() + 1);
 
+#ifdef _DEBUG
+	AllocConsole();
+
+	FILE* pConOut;
+	freopen_s(&pConOut, "CONOUT$", "w", stdout);
+
+	HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+	DWORD dwMode = 0;
+	GetConsoleMode(hConsole, &dwMode);
+	dwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+	SetConsoleMode(hConsole, dwMode);
+#endif
+	
 	LogInit("crosscord", fmt::format("{}\\logs\\", sModulePath).c_str());
 
 	LogInfo("CrossCord  - {} build", g_cBuild);
