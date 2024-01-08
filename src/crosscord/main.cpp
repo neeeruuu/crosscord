@@ -69,7 +69,7 @@ int WinMain(HINSTANCE, HINSTANCE, PSTR, int) {
 	
 	LogInit("crosscord", fmt::format("{}\\logs\\", sModulePath).c_str());
 
-	LogInfo("CrossCord  - {} build", g_cBuild);
+	LogInfo("CrossCord {}", g_cBuild);
 	LogInfo("Initializing");
 
 	LogInfo("Initializing components");

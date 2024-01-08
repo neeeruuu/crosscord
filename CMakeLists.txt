@@ -13,6 +13,15 @@ project(crosscord LANGUAGES CXX ASM_MASM)
 add_subdirectory(submodules)
 
 # ------------------------------------------------------
+# variables
+# ------------------------------------------------------
+if (DEFINED BUILD_VERSION)
+	add_compile_definitions(CROSSCORD_VER=v${BUILD_VERSION })
+else()
+	add_compile_definitions(CROSSCORD_VER="dev")
+endif()
+
+# ------------------------------------------------------
 # executable
 # ------------------------------------------------------
 file(GLOB_RECURSE crosscord_sources CONFIGURE_DEPENDS "src/crosscord/*.cpp")

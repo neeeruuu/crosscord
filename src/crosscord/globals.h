@@ -1,4 +1,4 @@
 #pragma once
 
-inline char g_cBuild[12] = __DATE__;
+inline const char* g_cBuild = CROSSCORD_VER;
 inline char g_cModulePath[261];

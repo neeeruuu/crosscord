@@ -3,6 +3,8 @@
 #include "overlay.h"
 #include "crosshair.h"
 
+#include "fmt/format.h"
+
 #include <imgui.h>
 #include <imgui_internal.h>
 #include <backends/imgui_impl_opengl3.h>
@@ -52,7 +54,7 @@ void CInterface::Draw() {
 
 		ImGui::SetNextWindowSize({350 * fDPIScale, 450 * fDPIScale });
 		ImGui::SetNextWindowSizeConstraints({ 300 * fDPIScale, 400 * fDPIScale }, { 400 * fDPIScale, 500 * fDPIScale });
-		if (ImGui::Begin("crosscord", &m_ShouldDraw, ImGuiWindowFlags_NoCollapse)) {
+		if (ImGui::Begin("crosscord " CROSSCORD_VER, &m_ShouldDraw, ImGuiWindowFlags_NoCollapse)) {
 			static ImGuiStyle* pStyle = &ImGui::GetStyle();
 			static CCrosshair* pCrosshair = CCrosshair::Get();
 
