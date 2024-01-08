@@ -13,22 +13,22 @@ inline const char* cCrosshairTypes[]{ "Cross", "Circle", "Arrow", /*"Image"*/ };
 struct SCrosshairSettings {
 	bool m_Enabled = true;
 
-	bool m_SettingsInitialized = false;
-
 	ECrosshairType m_Type = CROSSHAIR_CROSS;
 	float m_Color[4] = { 1.f, 0.f, 0.f, .295f };
-	int m_Position[2] = { 0 };
-	int m_Size = 60; // length for cross, radius for size, hipotenuse for triangle, multiplier for image
+	int m_Offset[2] = { 0 };
 
-	int m_Width = 3; // used on cross and arrow
+	int m_CrossLength = 60;
+	int m_CrossWidth = 3;
+	int m_CrossGap = 0;
+	bool m_CrossTStyle = false;
+	bool m_CrossDot = true;
 
-	// cross params
-	int m_Gap = 0;
-	bool m_TStyle = false;
-	bool m_Dot = true;
 
-	// circle / triangle params
-	bool m_Hollow = true;
+	int m_ArrowLength = 20;
+	int m_ArrowWidth = 2;
+
+	int m_CircleRadius = 5;
+	bool m_CircleHollow = 0;
 };
 
 class CCrosshair {
@@ -48,5 +48,5 @@ private:
 
 	void DrawBox(unsigned int iX0, unsigned int iY0, unsigned int iX1, unsigned int iY1, struct SColor* Col);
 	
-	class CCallback* m_DrawCB;
+	class CCallback* m_DrawCB = nullptr;
 };

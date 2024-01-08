@@ -78,7 +78,7 @@ void CInterface::Draw() {
 
 			ImGui::Separator();
 
-			ImGui::Text("Position (x, y)");
+			ImGui::Text("Offset (x, y)");
 			
 			if (ImGui::BeginTable("##PositionTable", 3, ImGuiTableFlags_NoBordersInBody)) {
 
@@ -90,19 +90,18 @@ void CInterface::Draw() {
 
 				ImGui::TableNextColumn();
 				ImGui::SetNextItemWidth(ImGui::GetColumnWidth());
-				CROSSHAIR_SETTING(ImGui::InputInt("X", &pCrosshair->m_Settings.m_Position[0]));
+				CROSSHAIR_SETTING(ImGui::InputInt("X", &pCrosshair->m_Settings.m_Offset[0]));
 
 				ImGui::TableNextColumn();
 				ImGui::SetNextItemWidth(ImGui::GetColumnWidth());
-				CROSSHAIR_SETTING(ImGui::InputInt("Y", &pCrosshair->m_Settings.m_Position[1]));
+				CROSSHAIR_SETTING(ImGui::InputInt("Y", &pCrosshair->m_Settings.m_Offset[1]));
 
 				ImGui::TableNextColumn();
 				if (!bHasGame)
 					ImGui::BeginDisabled();
 				if (ImGui::Button("Center")) {
-					SFrameInfo* pFrameInfo = COverlay::Get()->GetFrameInfo();
-					pCrosshair->m_Settings.m_Position[0] = pFrameInfo->m_Width / 2;
-					pCrosshair->m_Settings.m_Position[1] = pFrameInfo->m_Height / 2;
+					pCrosshair->m_Settings.m_Offset[0] = 0;
+					pCrosshair->m_Settings.m_Offset[1] = 0;
 					pCrosshair->_SettingChanged();
 				}
 				if (!bHasGame)
@@ -117,19 +116,19 @@ void CInterface::Draw() {
 
 			switch (pCrosshair->m_Settings.m_Type) {
 				case CROSSHAIR_CROSS:
-					CROSSHAIR_SETTING(ImGui::SliderInt("Gap", &pCrosshair->m_Settings.m_Gap, 0, 64));
-					CROSSHAIR_SETTING(ImGui::SliderInt("Length", &pCrosshair->m_Settings.m_Size, 1, 256));
-					CROSSHAIR_SETTING(ImGui::SliderInt("Width", &pCrosshair->m_Settings.m_Width, 0, 32));
-					CROSSHAIR_SETTING(ImGui::Checkbox("T Style", &pCrosshair->m_Settings.m_TStyle));
-					CROSSHAIR_SETTING(ImGui::Checkbox("Center dot", &pCrosshair->m_Settings.m_Dot));
+					CROSSHAIR_SETTING(ImGui::SliderInt("Length", &pCrosshair->m_Settings.m_CrossLength, 1, 256));
+					CROSSHAIR_SETTING(ImGui::SliderInt("Width", &pCrosshair->m_Settings.m_CrossWidth, 0, 32));
+					CROSSHAIR_SETTING(ImGui::SliderInt("Gap", &pCrosshair->m_Settings.m_CrossGap, 0, 64));
+					CROSSHAIR_SETTING(ImGui::Checkbox("T Style", &pCrosshair->m_Settings.m_CrossTStyle));
+					CROSSHAIR_SETTING(ImGui::Checkbox("Center dot", &pCrosshair->m_Settings.m_CrossDot));
 					break;
 				case CROSSHAIR_CIRCLE:
-					CROSSHAIR_SETTING(ImGui::SliderInt("Size", &pCrosshair->m_Settings.m_Size, 1, 30));
-					CROSSHAIR_SETTING(ImGui::Checkbox("Hollow", &pCrosshair->m_Settings.m_Hollow));
+					CROSSHAIR_SETTING(ImGui::SliderInt("Radius", &pCrosshair->m_Settings.m_CircleRadius, 1, 30));
+					CROSSHAIR_SETTING(ImGui::Checkbox("Hollow", &pCrosshair->m_Settings.m_CircleHollow));
 					break;
 				case CROSSHAIR_ARROW:
-					CROSSHAIR_SETTING(ImGui::SliderInt("Length", &pCrosshair->m_Settings.m_Size, 1, 256));
-					CROSSHAIR_SETTING(ImGui::SliderInt("Width", &pCrosshair->m_Settings.m_Width, 0, 32));
+					CROSSHAIR_SETTING(ImGui::SliderInt("Length", &pCrosshair->m_Settings.m_ArrowLength, 1, 256));
+					CROSSHAIR_SETTING(ImGui::SliderInt("Width", &pCrosshair->m_Settings.m_ArrowWidth, 0, 32));
 					break;
 				//case CROSSHAIR_IMAGE:
 				//	CROSSHAIR_SETTING(ImGui::SliderFloat("Size", &pCrosshair->m_Size, 0.1f, 15.f));

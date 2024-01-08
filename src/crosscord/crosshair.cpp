@@ -7,8 +7,7 @@ bool CCrosshair::Initialize() {
 	m_DrawCB = g_CB_OverlayDraw->Register([](SFrameInfo* pFrameInfo) {
 		CCrosshair* pCrosshair = CCrosshair::Get();
 
-		if (pCrosshair->_m_PrevSettings.m_SettingsInitialized)
-			pCrosshair->_Draw(pFrameInfo, &pCrosshair->_m_PrevSettings);
+		pCrosshair->_Draw(pFrameInfo, &pCrosshair->_m_PrevSettings);
 		pCrosshair->_Draw(pFrameInfo, &pCrosshair->m_Settings);
 
 		memcpy(&pCrosshair->_m_PrevSettings, &pCrosshair->m_Settings, sizeof(SCrosshairSettings));
@@ -38,20 +37,15 @@ void CCrosshair::DrawBox(unsigned int iStartX, unsigned int iStartY, unsigned in
 }
 
 void CCrosshair::_Draw(SFrameInfo* pFrameInfo, SCrosshairSettings* pSettings) {
-	if (!pSettings->m_Position[0])
-		pSettings->m_Position[0] = pFrameInfo->m_Width / 2;
-
-	if (!pSettings->m_Position[1])
-		pSettings->m_Position[1] = pFrameInfo->m_Height / 2;
-
-	pSettings->m_SettingsInitialized = true;
-
 	SColor TargetColor{
 		static_cast<unsigned char>(pSettings->m_Color[2] * 255),
 		static_cast<unsigned char>(pSettings->m_Color[1] * 255),
 		static_cast<unsigned char>(pSettings->m_Color[0] * 255),
-		static_cast<unsigned char>(pSettings->m_Color[3] * 255),
+		static_cast<unsigned char>(pSettings->m_Color[3] * 255)
 	};
+
+	int iPosX = pFrameInfo->m_Width / 2;
+	int iPosY = pFrameInfo->m_Height / 2;
 
 	switch (pSettings->m_Type) {
 		case CROSSHAIR_CROSS: {
@@ -59,56 +53,59 @@ void CCrosshair::_Draw(SFrameInfo* pFrameInfo, SCrosshairSettings* pSettings) {
 			int iEndX, iEndY;
 
 			// horizontal lines
-			iStartY = pSettings->m_Position[1] - pSettings->m_Width;
-			iEndY = pSettings->m_Position[1] + 1 + pSettings->m_Width;
+			iStartY = iPosY - pSettings->m_CrossWidth;
+			iEndY = iPosY + 1 + pSettings->m_CrossWidth;
 
-			iStartX = pSettings->m_Position[0] - pSettings->m_Gap - (pSettings->m_Size / 2);
-			iEndX = pSettings->m_Position[0] - pSettings->m_Gap;
+			iStartX = iPosX - pSettings->m_CrossGap - (pSettings->m_CrossLength / 2);
+			iEndX = iPosX - pSettings->m_CrossGap;
 			DrawBox(iStartX, iStartY, iEndX, iEndY, &TargetColor); // left
 
-			iStartX = pSettings->m_Position[0] + 1 + pSettings->m_Gap;
-			iEndX = pSettings->m_Position[0] + 1 + pSettings->m_Gap + (pSettings->m_Size / 2);
+			iStartX = iPosX + 1 + pSettings->m_CrossGap;
+			iEndX = iPosX + 1 + pSettings->m_CrossGap + (pSettings->m_CrossLength / 2);
 			DrawBox(iStartX, iStartY, iEndX, iEndY, &TargetColor); // right
 
 			// vertical lines
-			iStartX = pSettings->m_Position[0] - pSettings->m_Width;
-			iEndX = pSettings->m_Position[0] + 1 + pSettings->m_Width;
-			
-			if (!pSettings->m_TStyle) {
-				iStartY = pSettings->m_Position[1] - pSettings->m_Gap - (pSettings->m_Size / 2);
-				iEndY = pSettings->m_Position[1] - pSettings->m_Gap;
+			iStartX = iPosX - pSettings->m_CrossWidth;
+			iEndX = iPosX + 1 + pSettings->m_CrossWidth;
+
+			if (!pSettings->m_CrossTStyle) {
+				iStartY = iPosY - pSettings->m_CrossGap - (pSettings->m_CrossLength / 2);
+				iEndY = iPosY - pSettings->m_CrossGap;
 				DrawBox(iStartX, iStartY, iEndX, iEndY, &TargetColor); // top
 			}
 
-			iStartY = pSettings->m_Position[1] + 1 + pSettings->m_Gap;
-			iEndY = pSettings->m_Position[1] + 1 + pSettings->m_Gap + (pSettings->m_Size / 2);
+			iStartY = iPosY + 1 + pSettings->m_CrossGap;
+			iEndY = iPosY + 1 + pSettings->m_CrossGap + (pSettings->m_CrossLength / 2);
 			DrawBox(iStartX, iStartY, iEndX, iEndY, &TargetColor); // bottom
 
-			if (pSettings->m_Dot) {
-				iStartX = pSettings->m_Position[0] - pSettings->m_Width;
-				iStartY = pSettings->m_Position[1] - pSettings->m_Width;
-				iEndX = pSettings->m_Position[0] + pSettings->m_Width + 1;
-				iEndY = pSettings->m_Position[1] + pSettings->m_Width + 1;
+			if (pSettings->m_CrossDot) {
+				iStartX = iPosX - pSettings->m_CrossWidth;
+				iStartY = iPosY - pSettings->m_CrossWidth;
+				iEndX = iPosX + pSettings->m_CrossWidth + 1;
+				iEndY = iPosY + pSettings->m_CrossWidth + 1;
 				DrawBox(iStartX, iStartY, iEndX, iEndY, &TargetColor);
 			}
 			break;
 		}
 		case CROSSHAIR_ARROW: {
 			SColor* pPixelBuffer = reinterpret_cast<SColor*>(pFrameInfo->m_Pixels);
-			for (int iDiag = 0; iDiag < pSettings->m_Size; iDiag++) {
+			for (int iDiag = 0; iDiag < pSettings->m_ArrowLength; iDiag++) {
 				int iBaseX, iBaseY;
+				iBaseY = iPosY + iDiag;
 
-				iBaseX = pSettings->m_Position[0] + iDiag;
-				iBaseY = pSettings->m_Position[1] + iDiag;
-				for (int iX = -pSettings->m_Width; iX < pSettings->m_Width + 1; iX++)
+				iBaseX = iPosX + iDiag;
+				for (int iX = -pSettings->m_ArrowWidth; iX < pSettings->m_ArrowWidth + 1; iX++)
 					pPixelBuffer[iBaseY * pFrameInfo->m_Width + iBaseX + iX] = TargetColor;
 
-				iBaseX = pSettings->m_Position[0] - iDiag;
-				iBaseY = pSettings->m_Position[1] + iDiag;
-				for (int iX = -pSettings->m_Width; iX < pSettings->m_Width + 1; iX++)
+				iBaseX = iPosX - iDiag;
+				for (int iX = -pSettings->m_ArrowWidth; iX < pSettings->m_ArrowWidth + 1; iX++)
 					pPixelBuffer[iBaseY * pFrameInfo->m_Width + iBaseX + iX] = TargetColor;
-
 			}
+
+			break;
+		}
+		case CROSSHAIR_CIRCLE: {
+			break;
 		}
 	}
 }
