@@ -30,10 +30,13 @@ jobs:
       working-directory: ${{github.workspace}}\proj
       run: cmake --build . --config MinSizeRel
 
+    - name: Where the hell are my files going
+      run: tree "${{github.workspace}}\proj"
+
     - name: Release
       uses: softprops/action-gh-release@v1
       with:
         tag_name: v${{ steps.tags.outputs.new_version }}
         name: "v${{ steps.tags.outputs.new_version }} - Automatic build"
         prerelease: true
-        files: ${{github.workspace}}\proj\build\MinSizeRel\crosscord.exe
+        files: ${{github.workspace}}\proj\build\MinSizeRel\*.exe
