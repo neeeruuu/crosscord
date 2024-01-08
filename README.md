@@ -1,9 +1,9 @@
-<h3 align="center">CrossCord</h3>
+<h1 align="center"><b>CrossCord</b></h1>
 
 <p align="center">
     An anticheat compatible crosshair that uses Discord's overlay
     <br/>
-    <a href="https://github.com/neeeruuu/crosscord/releases/latest"><strong>Download</strong></a>
+    <a href="https://github.com/neeeruuu/crosscord/releases/latest"><b>Download</b></a>
     <br/>
     <br/>
     Inspired by <a href="https://github.com/SamuelTulach">SamuelTulach</a>'s work
