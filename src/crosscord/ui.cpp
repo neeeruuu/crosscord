@@ -67,6 +67,11 @@ void CInterface::Draw() {
 
 			CROSSHAIR_SETTING(ImGui::Checkbox("Enabled", &pCrosshair->m_Settings.m_Enabled));
 			ImGui::SameLine();
+			ImGui::SetCursorPosX(ImGui::GetContentRegionAvail().x + ImGui::CalcTextSize("Close").x + pStyle->FramePadding.x * 2);
+			if (ImGui::Button("Close"))
+				CGLManager::Get()->Shutdown();
+
+
 			ImGui::Text("Type:");
 			ImGui::SetNextItemWidth((ImGui::GetContentRegionAvail().x - (pStyle->WindowPadding.x * 2)) / 3);
 			ImGui::SameLine();
