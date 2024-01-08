@@ -36,6 +36,7 @@ jobs:
     - name: Release
       uses: softprops/action-gh-release@v1
       with:
+        body: ${{ steps.tags.outputs.changelog }}
         tag_name: v${{ steps.tags.outputs.new_version }}
         name: "v${{ steps.tags.outputs.new_version }} - Automatic build"
         prerelease: true
