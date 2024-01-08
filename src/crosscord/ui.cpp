@@ -128,11 +128,11 @@ void CInterface::Draw() {
 					CROSSHAIR_SETTING(ImGui::Checkbox("Center dot", &pCrosshair->m_Settings.m_CrossDot));
 					break;
 				case CROSSHAIR_CIRCLE:
-					CROSSHAIR_SETTING(ImGui::SliderInt("Radius", &pCrosshair->m_Settings.m_CircleRadius, 1, 30));
+					CROSSHAIR_SETTING(ImGui::SliderInt("Radius", &pCrosshair->m_Settings.m_CircleRadius, 1, 64));
 					CROSSHAIR_SETTING(ImGui::Checkbox("Hollow", &pCrosshair->m_Settings.m_CircleHollow));
 					break;
 				case CROSSHAIR_ARROW:
-					CROSSHAIR_SETTING(ImGui::SliderInt("Length", &pCrosshair->m_Settings.m_ArrowLength, 1, 256));
+					CROSSHAIR_SETTING(ImGui::SliderInt("Length", &pCrosshair->m_Settings.m_ArrowLength, 1, 64));
 					CROSSHAIR_SETTING(ImGui::SliderInt("Width", &pCrosshair->m_Settings.m_ArrowWidth, 0, 64));
 					break;
 				//case CROSSHAIR_IMAGE:
