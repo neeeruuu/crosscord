@@ -52,7 +52,7 @@ void CInterface::Draw() {
 		char* cWindowName = COverlay::Get()->GetActiveWindowName();
 		bool bHasGame = strlen(cWindowName) != 0;
 
-		ImGui::SetNextWindowSize({350 * fDPIScale, 450 * fDPIScale });
+		ImGui::SetNextWindowSize({350 * fDPIScale, 450 * fDPIScale }, ImGuiCond_Once);
 		ImGui::SetNextWindowSizeConstraints({ 300 * fDPIScale, 400 * fDPIScale }, { 400 * fDPIScale, 500 * fDPIScale });
 		if (ImGui::Begin("CrossCord " CROSSCORD_VER, &m_ShouldDraw, ImGuiWindowFlags_NoCollapse)) {
 			static ImGuiStyle* pStyle = &ImGui::GetStyle();
@@ -70,7 +70,6 @@ void CInterface::Draw() {
 			ImGui::SetCursorPosX(ImGui::GetContentRegionAvail().x + ImGui::CalcTextSize("Close").x + pStyle->FramePadding.x * 2);
 			if (ImGui::Button("Close"))
 				CGLManager::Get()->Shutdown();
-
 
 			ImGui::Text("Type:");
 			ImGui::SetNextItemWidth((ImGui::GetContentRegionAvail().x - (pStyle->WindowPadding.x * 2)) / 3);
