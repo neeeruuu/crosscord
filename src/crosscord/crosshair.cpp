@@ -1,5 +1,6 @@
 #include "crosshair.h"
 #include "overlay.h"
+#include "config.h"
 
 INITIALIZE_SINGLETON(CCrosshair);
 
@@ -20,23 +21,10 @@ void CCrosshair::Shutdown() {
 	delete m_DrawCB;
 }
 
-void CCrosshair::DrawBox(unsigned int iStartX, unsigned int iStartY, unsigned int iEndX, unsigned int iEndY, SColor* Col) {
-	SFrameInfo* pFrameInfo = COverlay::Get()->GetFrameInfo();
-
-	if (iStartX > pFrameInfo->m_Width || iEndX > pFrameInfo->m_Width)
-		return;
-	if (iStartY > pFrameInfo->m_Height || iEndY > pFrameInfo->m_Height)
-		return;
-
-	SColor* pPixelBuffer = reinterpret_cast<SColor*>(pFrameInfo->m_Pixels);
-	for (unsigned int iX = iStartX; iX < iEndX; iX++) {
-		for (unsigned int iY = iStartY; iY < iEndY; iY++) {
-			pPixelBuffer[iY * pFrameInfo->m_Width + iX] = *Col;
-		}
-	}
-}
-
 void CCrosshair::_Draw(SFrameInfo* pFrameInfo, SCrosshairSettings* pSettings) {
+	if (!pSettings->m_Enabled)
+		return;
+
 	SColor TargetColor{
 		static_cast<unsigned char>(pSettings->m_Color[2] * 255),
 		static_cast<unsigned char>(pSettings->m_Color[1] * 255),
@@ -44,8 +32,8 @@ void CCrosshair::_Draw(SFrameInfo* pFrameInfo, SCrosshairSettings* pSettings) {
 		static_cast<unsigned char>(pSettings->m_Color[3] * 255)
 	};
 
-	int iPosX = pFrameInfo->m_Width / 2;
-	int iPosY = pFrameInfo->m_Height / 2;
+	int iPosX = (pFrameInfo->m_Width / 2) + pSettings->m_Offset[0];
+	int iPosY = (pFrameInfo->m_Height / 2) + pSettings->m_Offset[1];
 
 	switch (pSettings->m_Type) {
 		case CROSSHAIR_CROSS: {
@@ -114,5 +102,22 @@ void CCrosshair::_SettingChanged() {
 	SFrameInfo* pFrameInfo = COverlay::Get()->GetFrameInfo();
 	if (!pFrameInfo)
 		return;
+	CConfigManager::Get()->SaveConfig("config");
 	pFrameInfo->m_Frame++;
+}
+
+void CCrosshair::DrawBox(unsigned int iStartX, unsigned int iStartY, unsigned int iEndX, unsigned int iEndY, SColor* Col) {
+	SFrameInfo* pFrameInfo = COverlay::Get()->GetFrameInfo();
+
+	if (iStartX > pFrameInfo->m_Width || iEndX > pFrameInfo->m_Width)
+		return;
+	if (iStartY > pFrameInfo->m_Height || iEndY > pFrameInfo->m_Height)
+		return;
+
+	SColor* pPixelBuffer = reinterpret_cast<SColor*>(pFrameInfo->m_Pixels);
+	for (unsigned int iX = iStartX; iX < iEndX; iX++) {
+		for (unsigned int iY = iStartY; iY < iEndY; iY++) {
+			pPixelBuffer[iY * pFrameInfo->m_Width + iX] = *Col;
+		}
+	}
 }

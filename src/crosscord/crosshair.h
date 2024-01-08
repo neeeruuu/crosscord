@@ -23,12 +23,11 @@ struct SCrosshairSettings {
 	bool m_CrossTStyle = false;
 	bool m_CrossDot = true;
 
-
 	int m_ArrowLength = 20;
 	int m_ArrowWidth = 2;
 
 	int m_CircleRadius = 5;
-	bool m_CircleHollow = 0;
+	bool m_CircleHollow = false;
 };
 
 class CCrosshair {
