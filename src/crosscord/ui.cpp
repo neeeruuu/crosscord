@@ -58,8 +58,6 @@ void CInterface::Draw() {
 			static ImGuiStyle* pStyle = &ImGui::GetStyle();
 			static CCrosshair* pCrosshair = CCrosshair::Get();
 
-			float fWidth = ImGui::GetContentRegionAvail().x - (pStyle->WindowPadding.x * 2);
-
 			if (bHasGame)
 				ImGui::Text("Current process: %s", COverlay::Get()->GetActiveWindowName());
 			else
@@ -70,7 +68,7 @@ void CInterface::Draw() {
 			CROSSHAIR_SETTING(ImGui::Checkbox("Enabled", &pCrosshair->m_Settings.m_Enabled));
 			ImGui::SameLine();
 			ImGui::Text("Type:");
-			ImGui::SetNextItemWidth(fWidth / 3);
+			ImGui::SetNextItemWidth((ImGui::GetContentRegionAvail().x - (pStyle->WindowPadding.x * 2)) / 3);
 			ImGui::SameLine();
 			CROSSHAIR_SETTING(ImGui::Combo("##Type", reinterpret_cast<int*>(&pCrosshair->m_Settings.m_Type), cCrosshairTypes, IM_ARRAYSIZE(cCrosshairTypes)));
 			ImGui::SameLine();
