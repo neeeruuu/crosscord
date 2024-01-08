@@ -22,10 +22,10 @@
 - [x] Persistent settings
 - [ ] GPU rendering
 - [ ] Image crosshairs
-- [ ] Detect framebuffer changes on memory write
+- [ ] Framebuffer write callbacks instead of loop thread (possibly using PAGE_GUARD)
 - [ ] Icon
 - [ ] Keybinds
-- [ ] Well commented source
+- [ ] Improve comments
 
 # Building
 ### Requirements
