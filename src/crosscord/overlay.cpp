@@ -10,6 +10,8 @@
 #include <memoryapi.h>
 #include <handleapi.h>
 
+#include <TlHelp32.h>
+
 #include <thread>
 #include <chrono>
 
@@ -63,7 +65,28 @@ bool COverlay::DetectionThread() {
 		if (!hWnd || !bHasMap || !dwWndPID)
 			continue;
 
-		GetWindowTextA(hWnd, m_TargetWindowName, sizeof(m_TargetWindowName));
+		HANDLE hTH32Snap = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+		if (hTH32Snap == INVALID_HANDLE_VALUE)
+			return false;
+
+		PROCESSENTRY32 ProcEntry32;
+		ProcEntry32.dwSize = sizeof(PROCESSENTRY32);
+
+		if (!Process32First(hTH32Snap, &ProcEntry32)) {
+			CloseHandle(hTH32Snap);
+			return false;
+		}
+
+		bool bHadProcessName = false;
+		do {
+			if (ProcEntry32.th32ProcessID == dwWndPID) {
+				memcpy(m_TargetWindowName, &ProcEntry32.szExeFile, sizeof(m_TargetWindowName));
+				break;
+			}
+		} while (Process32Next(hTH32Snap, &ProcEntry32) || !bHadProcessName);
+
+		CloseHandle(hTH32Snap);
+
 		m_TargetProcessId = dwWndPID;
 
 		std::this_thread::sleep_for(std::chrono::milliseconds(DETECTION_TIMING * 5));
