@@ -31,11 +31,10 @@ jobs:
       run: cmake --build . --config MinSizeRel
 
     - name: Release draft
-      working-directory: ${{github.workspace}}/proj/build/MinSizeRel
       uses: "marvinpinto/action-automatic-releases@latest"
       with:
         repo_token: "${{ secrets.GITHUB_TOKEN }}"
         prerelease: true
         title: "v${{ steps.tags.outputs.new_version }} - Automatic build"
         automatic_release_tag: ${{ steps.tags.outputs.new_tag  }}
-        files: crosscord.exe
+        files: ${{github.workspace}}/proj/build/MinSizeRel/crosscord.exe
