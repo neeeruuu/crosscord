@@ -15,7 +15,7 @@
 #include <debugapi.h>
 #endif
 
-#define LOG_MAX_ENTRIES 5
+#define LOG_MAX_ENTRIES 4
 
 bool bLogInitialized = false;
 
@@ -51,7 +51,7 @@ void LogInit(const char* cLogName, const char* cLogLocation) {
 
     if (LogFiles.size() >= LOG_MAX_ENTRIES) {
         size_t nToDelete = LogFiles.size() - LOG_MAX_ENTRIES;
-        int i = 0;
+        unsigned int i = 0;
 
         for (auto const& [Time, File] : LogFiles) {
             i++;
@@ -108,8 +108,4 @@ void Log(ELogType eLogType, std::string sText, bool bNewline) {
         fmt::print(fg(fmt::color::white), " {}\n", sText);
     else
         fmt::print(fg(fmt::color::white), " {}", sText);
-
-#ifdef _DEBUG
-    OutputDebugStringA(fmt::format("{:%Y-%m-%d - %H:%M:%S} - [{}] - {}", fmt::localtime(std::time(nullptr)), sLogType, sText).c_str());
-#endif
 }
