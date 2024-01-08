@@ -54,7 +54,7 @@ void CInterface::Draw() {
 
 		ImGui::SetNextWindowSize({350 * fDPIScale, 450 * fDPIScale });
 		ImGui::SetNextWindowSizeConstraints({ 300 * fDPIScale, 400 * fDPIScale }, { 400 * fDPIScale, 500 * fDPIScale });
-		if (ImGui::Begin("crosscord " CROSSCORD_VER, &m_ShouldDraw, ImGuiWindowFlags_NoCollapse)) {
+		if (ImGui::Begin("CrossCord " CROSSCORD_VER, &m_ShouldDraw, ImGuiWindowFlags_NoCollapse)) {
 			static ImGuiStyle* pStyle = &ImGui::GetStyle();
 			static CCrosshair* pCrosshair = CCrosshair::Get();
 
