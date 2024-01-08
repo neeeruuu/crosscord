@@ -85,6 +85,12 @@ bool COverlay::AdquireMap(int iProcessId) {
 		return false;
 	}
 
+	if (reinterpret_cast<SFrameInfo*>(pMapView)->m_Frame < 1) {
+		CloseHandle(pMapFile);
+		UnmapViewOfFile(pMapView);
+		return false;
+	}
+
 	if (m_MapFile) CloseHandle(m_MapFile);
 	if (m_MapView) UnmapViewOfFile(m_MapView);
 	m_MapFile = pMapFile;
