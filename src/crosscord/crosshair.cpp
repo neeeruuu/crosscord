@@ -32,8 +32,8 @@ void CCrosshair::_Draw(SFrameInfo* pFrameInfo, SCrosshairSettings* pSettings) {
 		static_cast<unsigned char>(pSettings->m_Color[3] * 255)
 	};
 
-	int iPosX = (pFrameInfo->m_Width / 2) + pSettings->m_Offset[0];
-	int iPosY = (pFrameInfo->m_Height / 2) + pSettings->m_Offset[1];
+	unsigned int iPosX = (pFrameInfo->m_Width / 2) + pSettings->m_Offset[0];
+	unsigned int iPosY = (pFrameInfo->m_Height / 2) + pSettings->m_Offset[1];
 
 	switch (pSettings->m_Type) {
 		case CROSSHAIR_CROSS: {
@@ -77,8 +77,11 @@ void CCrosshair::_Draw(SFrameInfo* pFrameInfo, SCrosshairSettings* pSettings) {
 		}
 		case CROSSHAIR_ARROW: {
 			SColor* pPixelBuffer = reinterpret_cast<SColor*>(pFrameInfo->m_Pixels);
+			if (iPosX - pSettings->m_ArrowLength < 0)
+				return;
+
 			for (int iDiag = 0; iDiag < pSettings->m_ArrowLength; iDiag++) {
-				int iBaseX, iY;
+				unsigned int iBaseX, iY;
 				iY = iPosY + iDiag;
 
 				iBaseX = iPosX + iDiag;
@@ -125,7 +128,7 @@ void CCrosshair::_Draw(SFrameInfo* pFrameInfo, SCrosshairSettings* pSettings) {
 			else {
 				for (int iY = -pSettings->m_CircleRadius; iY <= pSettings->m_CircleRadius; ++iY) {
 					for (int iX = -pSettings->m_CircleRadius; iX <= pSettings->m_CircleRadius; ++iX) {
-						int iDistSquared = iX * iX + iY * iY;
+						unsigned int iDistSquared = iX * iX + iY * iY;
 
 						if (iDistSquared <= pSettings->m_CircleRadius * pSettings->m_CircleRadius) {
 							unsigned int iDrawX = iPosX + iX;
