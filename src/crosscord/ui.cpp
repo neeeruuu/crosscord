@@ -1,12 +1,19 @@
 #include "ui.h"
 #include "gl.h"
+#include "overlay.h"
+#include "crosshair.h"
 
 #include <imgui.h>
+#include <imgui_internal.h>
 #include <backends/imgui_impl_opengl3.h>
 #include <backends/imgui_impl_win32.h>
 #include <backends/imgui_impl_glfw.h>
 
+//#include <imfilebrowser.h>
+
 INITIALIZE_SINGLETON(CInterface);
+
+#define CROSSHAIR_SETTING(Widget) if (Widget) pCrosshair->_SettingChanged();
 
 bool CInterface::Initialize() {
 	m_Callbacks.push_back(g_CB_GLInit->Register([](GLFWwindow* pWindow) { CInterface::Get()->_Init(pWindow); }, true));
@@ -29,6 +36,9 @@ void CInterface::_Init(GLFWwindow* pWindow) {
 	const char* cGLSLVer = "#version 130";
 	ImGui_ImplGlfw_InitForOpenGL(pWindow, true);
 	ImGui_ImplOpenGL3_Init(cGLSLVer);
+
+
+	//float fDPIScale = ImGui_ImplWin32_GetDpiScaleForHwnd(CGLManager::Get()->GetWindowHandle());
 }
 
 void CInterface::Draw() {
@@ -36,11 +46,105 @@ void CInterface::Draw() {
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
 
-	if (m_ShouldDraw) {
-		ImGui::SetNextWindowSizeConstraints({ 300, 400 }, { 400, 500 });
-		if (ImGui::Begin("crosscord", &m_ShouldDraw, ImGuiWindowFlags_NoCollapse)) {
-			ImGui::Button("Hi");
+	//ImGui::GetViewportPlatformMonitor()
+	//ImGui::GetMainViewport()->PlatformHandle;
 
+	static float fDPIScale = 1.f;
+
+	if (m_ShouldDraw) {
+
+		char* cWindowName = COverlay::Get()->GetActiveWindowName();
+		bool bHasGame = strlen(cWindowName) != 0;
+
+		ImGui::SetNextWindowSize({350 * fDPIScale, 450 * fDPIScale });
+		ImGui::SetNextWindowSizeConstraints({ 300 * fDPIScale, 400 * fDPIScale }, { 400 * fDPIScale, 500 * fDPIScale });
+		if (ImGui::Begin("crosscord", &m_ShouldDraw, ImGuiWindowFlags_NoCollapse)) {
+			static ImGuiStyle* pStyle = &ImGui::GetStyle();
+			static CCrosshair* pCrosshair = CCrosshair::Get();
+
+			float fWidth = ImGui::GetContentRegionAvail().x - (pStyle->WindowPadding.x * 2);
+
+			if (bHasGame)
+				ImGui::Text("Current process: %s", COverlay::Get()->GetActiveWindowName());
+			else
+				ImGui::Text("Waiting for game...");
+			
+			ImGui::Separator();
+
+			CROSSHAIR_SETTING(ImGui::Checkbox("Enabled", &pCrosshair->m_Settings.m_Enabled));
+			ImGui::SameLine();
+			ImGui::Text("Type:");
+			ImGui::SetNextItemWidth(fWidth / 3);
+			ImGui::SameLine();
+			CROSSHAIR_SETTING(ImGui::Combo("##Type", reinterpret_cast<int*>(&pCrosshair->m_Settings.m_Type), cCrosshairTypes, IM_ARRAYSIZE(cCrosshairTypes)));
+			ImGui::SameLine();
+			ImGui::Text("Color:");
+			ImGui::SameLine();
+			CROSSHAIR_SETTING(ImGui::ColorEdit4("Color", pCrosshair->m_Settings.m_Color, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel));
+
+			ImGui::Separator();
+
+			ImGui::Text("Position (x, y)");
+			
+			if (ImGui::BeginTable("##PositionTable", 3, ImGuiTableFlags_NoBordersInBody)) {
+
+				ImGui::TableSetupColumn("1", ImGuiTableColumnFlags_WidthStretch, -1.f);
+				ImGui::TableSetupColumn("2", ImGuiTableColumnFlags_WidthStretch, -1.f);
+				ImGui::TableSetupColumn("3", ImGuiTableColumnFlags_WidthFixed, ImGui::CalcTextSize("Center").x + pStyle->FramePadding.x * 2);
+
+				ImGui::TableNextRow();
+
+				ImGui::TableNextColumn();
+				ImGui::SetNextItemWidth(ImGui::GetColumnWidth());
+				CROSSHAIR_SETTING(ImGui::InputInt("X", &pCrosshair->m_Settings.m_Position[0]));
+
+				ImGui::TableNextColumn();
+				ImGui::SetNextItemWidth(ImGui::GetColumnWidth());
+				CROSSHAIR_SETTING(ImGui::InputInt("Y", &pCrosshair->m_Settings.m_Position[1]));
+
+				ImGui::TableNextColumn();
+				if (!bHasGame)
+					ImGui::BeginDisabled();
+				if (ImGui::Button("Center")) {
+					SFrameInfo* pFrameInfo = COverlay::Get()->GetFrameInfo();
+					pCrosshair->m_Settings.m_Position[0] = pFrameInfo->m_Width / 2;
+					pCrosshair->m_Settings.m_Position[1] = pFrameInfo->m_Height / 2;
+					pCrosshair->_SettingChanged();
+				}
+				if (!bHasGame)
+					ImGui::EndDisabled();
+
+				ImGui::EndTable();
+			}
+
+			ImGui::Separator();
+
+			ImGui::Text("Type specific settings");
+
+			switch (pCrosshair->m_Settings.m_Type) {
+				case CROSSHAIR_CROSS:
+					CROSSHAIR_SETTING(ImGui::SliderInt("Size", &pCrosshair->m_Settings.m_Size, 1, 120));
+					CROSSHAIR_SETTING(ImGui::SliderInt("Width", &pCrosshair->m_Settings.m_Width, 1, 6));
+					CROSSHAIR_SETTING(ImGui::Checkbox("T Style", &pCrosshair->m_Settings.m_TStyle));
+					CROSSHAIR_SETTING(ImGui::Checkbox("Center dot", &pCrosshair->m_Settings.m_Dot));
+					break;
+				case CROSSHAIR_CIRCLE:
+					CROSSHAIR_SETTING(ImGui::SliderInt("Size", &pCrosshair->m_Settings.m_Size, 1, 30));
+					CROSSHAIR_SETTING(ImGui::Checkbox("Hollow", &pCrosshair->m_Settings.m_Hollow));
+					break;
+				case CROSSHAIR_TRIANGLE:
+					CROSSHAIR_SETTING(ImGui::SliderInt("Size", &pCrosshair->m_Settings.m_Size, 1, 30));
+					CROSSHAIR_SETTING(ImGui::Checkbox("Hollow", &pCrosshair->m_Settings.m_Hollow));
+					break;
+				//case CROSSHAIR_IMAGE:
+				//	CROSSHAIR_SETTING(ImGui::SliderFloat("Size", &pCrosshair->m_Size, 0.1f, 15.f));
+				//	break;
+			}
+
+
+			/*
+				ImGui workarounds
+			*/
 			if (m_ShouldBringToFront) {
 				// sometimes userdata is null, and imgui doesn't check that during SetFocus, so an access violation occurs, fix pls
 				ImGuiViewport* pVP = ImGui::GetWindowViewport();
@@ -49,6 +153,7 @@ void CInterface::Draw() {
 					m_ShouldBringToFront = false;
 				}
 			}
+			fDPIScale = ImGui::GetViewportPlatformMonitor(ImGui::GetWindowViewport())->DpiScale;
 		}
 		ImGui::End();
 
