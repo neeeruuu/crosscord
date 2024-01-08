@@ -21,11 +21,17 @@ void CCrosshair::Shutdown() {
 	delete m_DrawCB;
 }
 
-void CCrosshair::DrawBox(int iStartX, int iStartY, int iEndX, int iEndY, SColor* Col) {
+void CCrosshair::DrawBox(unsigned int iStartX, unsigned int iStartY, unsigned int iEndX, unsigned int iEndY, SColor* Col) {
 	SFrameInfo* pFrameInfo = COverlay::Get()->GetFrameInfo();
-	SColor* pPixelBuffer = reinterpret_cast<SColor*>(COverlay::Get()->GetFrameInfo()->m_Pixels);
-	for (int iX = iStartX; iX < iEndX; iX++) {
-		for (int iY = iStartY; iY < iEndY; iY++) {
+
+	if (iStartX > pFrameInfo->m_Width || iEndX > pFrameInfo->m_Width)
+		return;
+	if (iStartY > pFrameInfo->m_Height || iEndY > pFrameInfo->m_Height)
+		return;
+
+	SColor* pPixelBuffer = reinterpret_cast<SColor*>(pFrameInfo->m_Pixels);
+	for (unsigned int iX = iStartX; iX < iEndX; iX++) {
+		for (unsigned int iY = iStartY; iY < iEndY; iY++) {
 			pPixelBuffer[iY * pFrameInfo->m_Width + iX] = *Col;
 		}
 	}
@@ -52,38 +58,58 @@ void CCrosshair::_Draw(SFrameInfo* pFrameInfo, SCrosshairSettings* pSettings) {
 			int iStartX, iStartY;
 			int iEndX, iEndY;
 
+			// horizontal lines
+			iStartY = pSettings->m_Position[1] - pSettings->m_Width;
+			iEndY = pSettings->m_Position[1] + 1 + pSettings->m_Width;
 
-			// horizontal line
-			iStartX = pSettings->m_Position[0] + 1 - (pSettings->m_Size / 2);
-			iStartY = pSettings->m_Position[1] + 1 - pSettings->m_Width;
+			iStartX = pSettings->m_Position[0] - pSettings->m_Gap - (pSettings->m_Size / 2);
+			iEndX = pSettings->m_Position[0] - pSettings->m_Gap;
+			DrawBox(iStartX, iStartY, iEndX, iEndY, &TargetColor); // left
 
-			iEndX = pSettings->m_Position[0] + (pSettings->m_Size / 2);
-			iEndY = pSettings->m_Position[1] + pSettings->m_Width;
-			DrawBox(iStartX, iStartY, iEndX, iEndY, &TargetColor);
+			iStartX = pSettings->m_Position[0] + 1 + pSettings->m_Gap;
+			iEndX = pSettings->m_Position[0] + 1 + pSettings->m_Gap + (pSettings->m_Size / 2);
+			DrawBox(iStartX, iStartY, iEndX, iEndY, &TargetColor); // right
 
-			// vertical line
-			iStartX = pSettings->m_Position[0] + 1 - pSettings->m_Width;
-			if (!pSettings->m_TStyle)
-				iStartY = pSettings->m_Position[1] + 1 - (pSettings->m_Size / 2);
-			else
-				iStartY = pSettings->m_Position[1];
+			// vertical lines
+			iStartX = pSettings->m_Position[0] - pSettings->m_Width;
+			iEndX = pSettings->m_Position[0] + 1 + pSettings->m_Width;
+			
+			if (!pSettings->m_TStyle) {
+				iStartY = pSettings->m_Position[1] - pSettings->m_Gap - (pSettings->m_Size / 2);
+				iEndY = pSettings->m_Position[1] - pSettings->m_Gap;
+				DrawBox(iStartX, iStartY, iEndX, iEndY, &TargetColor); // top
+			}
 
+			iStartY = pSettings->m_Position[1] + 1 + pSettings->m_Gap;
+			iEndY = pSettings->m_Position[1] + 1 + pSettings->m_Gap + (pSettings->m_Size / 2);
+			DrawBox(iStartX, iStartY, iEndX, iEndY, &TargetColor); // bottom
 
-			iEndX = pSettings->m_Position[0] + pSettings->m_Width;
-			iEndY = pSettings->m_Position[1] + (pSettings->m_Size / 2);
-
-			DrawBox(iStartX, iStartY, iEndX, iEndY, &TargetColor);
+			if (pSettings->m_Dot) {
+				iStartX = pSettings->m_Position[0] - pSettings->m_Width;
+				iStartY = pSettings->m_Position[1] - pSettings->m_Width;
+				iEndX = pSettings->m_Position[0] + pSettings->m_Width + 1;
+				iEndY = pSettings->m_Position[1] + pSettings->m_Width + 1;
+				DrawBox(iStartX, iStartY, iEndX, iEndY, &TargetColor);
+			}
+			break;
 		}
-			//DrawBox(pSettings->m_Position[0] - (pSettings->m_Size / 2),
-			//	pSettings->m_Position[1] - (pSettings->m_Width / 2),
-			//	pSettings->m_Position[0] + (pSettings->m_Size / 2),
-			//	pSettings->m_Position[1] + (pSettings->m_Width / 2),
-			//	&TargetColor);
-			//DrawBox(pSettings->m_Position[0] - (pSettings->m_Width / 2),
-			//	pSettings->m_Position[1] - (pSettings->m_Size / 2),
-			//	pSettings->m_Position[0] + (pSettings->m_Width / 2),
-			//	pSettings->m_Position[1] + (pSettings->m_Size / 2),
-			//	&TargetColor);
+		case CROSSHAIR_ARROW: {
+			SColor* pPixelBuffer = reinterpret_cast<SColor*>(pFrameInfo->m_Pixels);
+			for (int iDiag = 0; iDiag < pSettings->m_Size; iDiag++) {
+				int iBaseX, iBaseY;
+
+				iBaseX = pSettings->m_Position[0] + iDiag;
+				iBaseY = pSettings->m_Position[1] + iDiag;
+				for (int iX = -pSettings->m_Width; iX < pSettings->m_Width + 1; iX++)
+					pPixelBuffer[iBaseY * pFrameInfo->m_Width + iBaseX + iX] = TargetColor;
+
+				iBaseX = pSettings->m_Position[0] - iDiag;
+				iBaseY = pSettings->m_Position[1] + iDiag;
+				for (int iX = -pSettings->m_Width; iX < pSettings->m_Width + 1; iX++)
+					pPixelBuffer[iBaseY * pFrameInfo->m_Width + iBaseX + iX] = TargetColor;
+
+			}
+		}
 	}
 }
 
