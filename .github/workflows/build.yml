@@ -20,14 +20,14 @@ jobs:
         github_token: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Create project folder
-      run: cmake -E make_directory ${{github.workspace}}/proj
+      run: cmake -E make_directory ${{github.workspace}}\proj
 
     - name: Configure
-      working-directory: ${{github.workspace}}/proj
+      working-directory: ${{github.workspace}}\proj
       run: cmake ../ -DCMAKE_BUILD_TYPE=MinSizeRel -DBUILD_VERSION="v${{ steps.tags.outputs.new_version }}"
 
     - name: Build
-      working-directory: ${{github.workspace}}/proj
+      working-directory: ${{github.workspace}}\proj
       run: cmake --build . --config MinSizeRel
 
     - name: Release draft
@@ -37,4 +37,4 @@ jobs:
         prerelease: true
         title: "v${{ steps.tags.outputs.new_version }} - Automatic build"
         automatic_release_tag: ${{ steps.tags.outputs.new_tag  }}
-        files: ${{github.workspace}}/proj/build/MinSizeRel/crosscord.exe
+        files: ${{github.workspace}}\proj\build\MinSizeRel\crosscord.exe
