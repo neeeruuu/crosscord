@@ -1,5 +1,4 @@
 #include "config.h"
-#include "globals.h"
 #include "crosshair.h"
 
 #include "util/log.h"
@@ -22,7 +21,7 @@ bool CConfigManager::Initialize() {
 }
 
 bool CConfigManager::LoadConfig(const char* cName) {
-	std::string sConfigPath = fmt::format("{}\\{}.json", g_cModulePath, cName);
+	std::string sConfigPath = fmt::format("{}\\{}.json", m_Path, cName);
 	if (!std::filesystem::exists(sConfigPath))
 		return false;
 
@@ -54,7 +53,7 @@ bool CConfigManager::LoadConfig(const char* cName) {
 }
 
 bool CConfigManager::SaveConfig(const char* cName) {
-	std::string sConfigPath = fmt::format("{}\\{}.json", g_cModulePath, cName);
+	std::string sConfigPath = fmt::format("{}\\{}.json", m_Path, cName);
 
 	SCrosshairSettings* pSettings = &CCrosshair::Get()->m_Settings;
 
@@ -87,4 +86,8 @@ bool CConfigManager::SaveConfig(const char* cName) {
 	ConfigFile.close();
 
 	return true;
+}
+
+void CConfigManager::SetConfigPath(const char* cConfigPath) {
+	memcpy(m_Path, cConfigPath, MAX_PATH + 1);
 }

@@ -5,7 +5,6 @@
 #include "tray.h"
 #include "config.h"
 #include "overlay.h"
-#include "globals.h"
 #include "crosshair.h"
 
 #include <future>
@@ -52,7 +51,6 @@ int WinMain(HINSTANCE, HINSTANCE, PSTR, int) {
 	GetModuleFileNameA(reinterpret_cast<HMODULE>(GetModuleHandleA(NULL)), cModuleName, MAX_PATH);
 	std::string sModuleName(cModuleName);
 	std::string sModulePath = sModuleName.substr(0, sModuleName.find_last_of('\\'));
-	memcpy(g_cModulePath, sModulePath.c_str(), sModulePath.length() + 1);
 
 #ifdef _DEBUG
 	AllocConsole();
@@ -69,8 +67,10 @@ int WinMain(HINSTANCE, HINSTANCE, PSTR, int) {
 	
 	LogInit("crosscord", fmt::format("{}\\logs\\", sModulePath).c_str());
 
-	LogInfo("CrossCord {}", g_cBuild);
+	LogInfo("CrossCord" CROSSCORD_VER);
 	LogInfo("Initializing");
+
+	CConfigManager::Get()->SetConfigPath(sModulePath.c_str());
 
 	LogInfo("Initializing components");
 	InitializeComponent("UI", CInterface);
