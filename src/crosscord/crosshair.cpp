@@ -78,21 +78,65 @@ void CCrosshair::_Draw(SFrameInfo* pFrameInfo, SCrosshairSettings* pSettings) {
 		case CROSSHAIR_ARROW: {
 			SColor* pPixelBuffer = reinterpret_cast<SColor*>(pFrameInfo->m_Pixels);
 			for (int iDiag = 0; iDiag < pSettings->m_ArrowLength; iDiag++) {
-				int iBaseX, iBaseY;
-				iBaseY = iPosY + iDiag;
+				int iBaseX, iY;
+				iY = iPosY + iDiag;
 
 				iBaseX = iPosX + iDiag;
 				for (int iX = -pSettings->m_ArrowWidth; iX < pSettings->m_ArrowWidth + 1; iX++)
-					pPixelBuffer[iBaseY * pFrameInfo->m_Width + iBaseX + iX] = TargetColor;
+					pPixelBuffer[iY * pFrameInfo->m_Width + iBaseX + iX] = TargetColor;
 
 				iBaseX = iPosX - iDiag;
 				for (int iX = -pSettings->m_ArrowWidth; iX < pSettings->m_ArrowWidth + 1; iX++)
-					pPixelBuffer[iBaseY * pFrameInfo->m_Width + iBaseX + iX] = TargetColor;
+					pPixelBuffer[iY * pFrameInfo->m_Width + iBaseX + iX] = TargetColor;
 			}
 
 			break;
 		}
 		case CROSSHAIR_CIRCLE: {
+			SColor* pPixelBuffer = reinterpret_cast<SColor*>(pFrameInfo->m_Pixels);
+			if (pSettings->m_CircleHollow) {
+				int iXCoord = pSettings->m_CircleRadius;
+				int iYCoord = 0;
+				int iDecision = 1 - pSettings->m_CircleRadius;
+
+				while (iXCoord >= iYCoord) {
+
+					pPixelBuffer[(iPosY + iYCoord) * pFrameInfo->m_Width + (iPosX + iXCoord)] = TargetColor;
+					pPixelBuffer[(iPosY + iYCoord) * pFrameInfo->m_Width + (iPosX - iXCoord)] = TargetColor;
+					pPixelBuffer[(iPosY - iYCoord) * pFrameInfo->m_Width + (iPosX + iXCoord)] = TargetColor;
+					pPixelBuffer[(iPosY - iYCoord) * pFrameInfo->m_Width + (iPosX - iXCoord)] = TargetColor;
+
+					pPixelBuffer[(iPosY + iXCoord) * pFrameInfo->m_Width + (iPosX + iYCoord)] = TargetColor;
+					pPixelBuffer[(iPosY + iXCoord) * pFrameInfo->m_Width + (iPosX - iYCoord)] = TargetColor;
+					pPixelBuffer[(iPosY - iXCoord) * pFrameInfo->m_Width + (iPosX + iYCoord)] = TargetColor;
+					pPixelBuffer[(iPosY - iXCoord) * pFrameInfo->m_Width + (iPosX - iYCoord)] = TargetColor;
+
+
+					iYCoord++;
+
+					if (iDecision <= 0)
+						iDecision = iDecision + 2 * iYCoord + 1;
+					else {
+						iXCoord--;
+						iDecision = iDecision + 2 * (iYCoord - iXCoord) + 1;
+					}
+				}
+			}
+			else {
+				for (int iY = -pSettings->m_CircleRadius; iY <= pSettings->m_CircleRadius; ++iY) {
+					for (int iX = -pSettings->m_CircleRadius; iX <= pSettings->m_CircleRadius; ++iX) {
+						int iDistSquared = iX * iX + iY * iY;
+
+						if (iDistSquared <= pSettings->m_CircleRadius * pSettings->m_CircleRadius) {
+							unsigned int iDrawX = iPosX + iX;
+							unsigned int iDrawY = iPosY + iY;
+
+							if (iDrawX < pFrameInfo->m_Width && iDrawY < pFrameInfo->m_Height)
+								pPixelBuffer[iDrawY * pFrameInfo->m_Width + iDrawX] = TargetColor;
+						}
+					}
+				}
+			}
 			break;
 		}
 	}
