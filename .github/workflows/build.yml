@@ -20,7 +20,7 @@ jobs:
         github_token: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Create project folder
-      run: cmake -E make_directory ${{github.workspace}}\proj
+      run: cmake -E make_directory proj
 
     - name: Configure
       working-directory: ${{github.workspace}}\proj
@@ -31,7 +31,7 @@ jobs:
       run: cmake --build . --config MinSizeRel
 
     - name: Where the hell are my files going
-      run: dir "${{github.workspace}}\proj\build\MinSizeRel"
+      run: dir "proj\build\MinSizeRel"
 
     - name: Release
       uses: softprops/action-gh-release@v1
@@ -40,4 +40,4 @@ jobs:
         tag_name: v${{ steps.tags.outputs.new_version }}
         name: "v${{ steps.tags.outputs.new_version }} - Automatic build"
         prerelease: true
-        files: ${{github.workspace}}\proj\build\MinSizeRel\crosscord.exe
+        files: proj\build\MinSizeRel\crosscord.exe
