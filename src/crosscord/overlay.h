@@ -29,18 +29,16 @@ struct SFrameInfo {
 class COverlay {
 	DECLARE_SINGLETON(COverlay);
 public:
-	void Shutdown() { m_ShutdownQueued = true; }
+	inline void Shutdown() { m_ShutdownQueued = true; }
 
 	bool RenderThread();
 	bool DetectionThread();
 
 	bool SetPixel(SPixel* pPixel);
 
-	char* GetActiveWindowName() { return m_TargetWindowName; }
-	SFrameInfo* GetFrameInfo() { return m_FrameInfo; }
+	inline char* GetActiveWindowName() { return m_TargetWindowName; }
+	inline SFrameInfo* GetFrameInfo() { return m_FrameInfo; }
 private:
-	bool m_ShutdownQueued = false;
-	
 	unsigned int m_LastFrameId = 0;
 
 	char m_TargetWindowName[64] = { 0 };
@@ -48,6 +46,8 @@ private:
 
 	void* m_MapFile = nullptr;
 	void* m_MapView = nullptr;
+
+	bool m_ShutdownQueued = false;
 
 	SFrameInfo* m_FrameInfo = nullptr;
 

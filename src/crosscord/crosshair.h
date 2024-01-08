@@ -12,6 +12,9 @@ inline const char* cCrosshairTypes[]{ "Cross", "Circle", "Arrow", /*"Image"*/ };
 
 struct SCrosshairSettings {
 	bool m_Enabled = true;
+	bool m_CrossTStyle = false;
+	bool m_CrossDot = true;
+	bool m_CircleHollow = false;
 
 	ECrosshairType m_Type = CROSSHAIR_CROSS;
 	float m_Color[4] = { 1.f, 0.f, 0.f, .295f };
@@ -20,14 +23,11 @@ struct SCrosshairSettings {
 	int m_CrossLength = 60;
 	int m_CrossWidth = 3;
 	int m_CrossGap = 0;
-	bool m_CrossTStyle = false;
-	bool m_CrossDot = true;
 
 	int m_ArrowLength = 20;
 	int m_ArrowWidth = 2;
 
 	int m_CircleRadius = 5;
-	bool m_CircleHollow = false;
 };
 
 class CCrosshair {

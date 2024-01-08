@@ -13,9 +13,7 @@
 class CCallbackEvent;
 
 class CCallback {
-	public:
-		bool m_Active;
-	
+	public:	
 		~CCallback();
 	private:
 		CCallback(CCallbackEvent* pEvent, void* pFunction, bool bActive);
@@ -24,6 +22,8 @@ class CCallback {
 		CCallbackEvent* m_Event;
 
 		friend class CCallbackEvent;
+public:
+	bool m_Active;
 };
 
 class CCallbackEvent {
