@@ -36,18 +36,12 @@ void CInterface::_Init(GLFWwindow* pWindow) {
 	const char* cGLSLVer = "#version 130";
 	ImGui_ImplGlfw_InitForOpenGL(pWindow, true);
 	ImGui_ImplOpenGL3_Init(cGLSLVer);
-
-
-	//float fDPIScale = ImGui_ImplWin32_GetDpiScaleForHwnd(CGLManager::Get()->GetWindowHandle());
 }
 
 void CInterface::Draw() {
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
-
-	//ImGui::GetViewportPlatformMonitor()
-	//ImGui::GetMainViewport()->PlatformHandle;
 
 	static float fDPIScale = 1.f;
 
@@ -123,8 +117,9 @@ void CInterface::Draw() {
 
 			switch (pCrosshair->m_Settings.m_Type) {
 				case CROSSHAIR_CROSS:
-					CROSSHAIR_SETTING(ImGui::SliderInt("Size", &pCrosshair->m_Settings.m_Size, 1, 120));
-					CROSSHAIR_SETTING(ImGui::SliderInt("Width", &pCrosshair->m_Settings.m_Width, 1, 6));
+					CROSSHAIR_SETTING(ImGui::SliderInt("Gap", &pCrosshair->m_Settings.m_Gap, 0, 64));
+					CROSSHAIR_SETTING(ImGui::SliderInt("Length", &pCrosshair->m_Settings.m_Size, 1, 256));
+					CROSSHAIR_SETTING(ImGui::SliderInt("Width", &pCrosshair->m_Settings.m_Width, 0, 32));
 					CROSSHAIR_SETTING(ImGui::Checkbox("T Style", &pCrosshair->m_Settings.m_TStyle));
 					CROSSHAIR_SETTING(ImGui::Checkbox("Center dot", &pCrosshair->m_Settings.m_Dot));
 					break;
@@ -132,9 +127,9 @@ void CInterface::Draw() {
 					CROSSHAIR_SETTING(ImGui::SliderInt("Size", &pCrosshair->m_Settings.m_Size, 1, 30));
 					CROSSHAIR_SETTING(ImGui::Checkbox("Hollow", &pCrosshair->m_Settings.m_Hollow));
 					break;
-				case CROSSHAIR_TRIANGLE:
-					CROSSHAIR_SETTING(ImGui::SliderInt("Size", &pCrosshair->m_Settings.m_Size, 1, 30));
-					CROSSHAIR_SETTING(ImGui::Checkbox("Hollow", &pCrosshair->m_Settings.m_Hollow));
+				case CROSSHAIR_ARROW:
+					CROSSHAIR_SETTING(ImGui::SliderInt("Length", &pCrosshair->m_Settings.m_Size, 1, 256));
+					CROSSHAIR_SETTING(ImGui::SliderInt("Width", &pCrosshair->m_Settings.m_Width, 0, 32));
 					break;
 				//case CROSSHAIR_IMAGE:
 				//	CROSSHAIR_SETTING(ImGui::SliderFloat("Size", &pCrosshair->m_Size, 0.1f, 15.f));
