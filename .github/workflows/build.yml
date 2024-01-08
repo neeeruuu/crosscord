@@ -41,4 +41,4 @@ jobs:
         name: "v${{ steps.tags.outputs.new_version }} - Automatic build"
         prerelease: true
         fail_on_unmatched_files: true
-        files: proj\build\MinSizeRel\crosscord.exe
+        files: proj/build/MinSizeRel/crosscord.exe
