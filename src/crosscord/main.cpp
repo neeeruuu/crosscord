@@ -3,7 +3,9 @@
 #include "gl.h"
 #include "ui.h"
 #include "tray.h"
+#include "config.h"
 #include "overlay.h"
+#include "globals.h"
 #include "crosshair.h"
 
 #include <future>
@@ -47,14 +49,18 @@ int main(int, char**) {
 	std::string sModuleName(cModuleName);
 	std::string sModulePath = sModuleName.substr(0, sModuleName.find_last_of('\\'));
 
+	memcpy(g_cModulePath, sModulePath.c_str(), sModulePath.length() + 1);
+
 	LogInit("crosscord", fmt::format("{}\\logs\\", sModulePath).c_str());
 
+	LogInfo("CrossCord  - {} build", g_cBuild);
 	LogInfo("Initializing");
 
 	LogInfo("Initializing components");
 	InitializeComponent("UI", CInterface);
 	InitializeComponent("Tray", CTray);
 	InitializeComponent("Crosshair renderer", CCrosshair);
+	InitializeComponent("Config", CConfigManager);
 
 	LogInfo("Creating threads");
 	std::vector<std::future<bool>> vFutures;
