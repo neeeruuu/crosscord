@@ -17,7 +17,7 @@
 # Usage
 1. Enable Discord's overlay
 2. Open CrossCord
-3. The moment Discord starts drawing an overlay on a game, CrossCord will draw an overlay on it
+3. The moment Discord draws an overlay on a game, CrossCord will draw a crosshair on top
 
 # To-do
 - [x] Basic crosshair types (cross, triangle, circle)
@@ -25,13 +25,13 @@
 - [x] Tray icon
 - [x] Persistent settings
 - [x] Icon
-- [ ] Improve render stability
+- [ ] Improve render consistency
+- [ ] Improve comments
 - [ ] Outlines
 - [ ] GPU rendering
 - [ ] Image crosshairs
 - [ ] Framebuffer write callbacks instead of loop thread (possibly using PAGE_GUARD)
 - [ ] Keybinds
-- [ ] Improve comments
 
 # Building
 ### Requirements
