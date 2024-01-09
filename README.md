@@ -10,7 +10,7 @@
     <a href="https://github.com/neeeruuu/crosscord/releases/latest"><b>Download</b></a>
     <br/>
     <br/>
-    Inspired by <a href="https://github.com/SamuelTulach">SamuelTulach</a>'s work
+    <i>Inspired by <a href="https://github.com/SamuelTulach">SamuelTulach</a>'s overlay proof of concept</i>
 </p>
 
 
