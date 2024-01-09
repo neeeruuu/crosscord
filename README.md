@@ -1,5 +1,5 @@
 <h1 align="center">
-    <img src="resources/icon.png" alt="icon" width="80" height="80">
+    <img src="resources/icon.png" alt="icon" width="128" height="128">
     <br/>
     <b>CrossCord</b>
 </h1>
