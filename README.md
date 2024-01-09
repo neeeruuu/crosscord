@@ -25,6 +25,8 @@
 - [x] Tray icon
 - [x] Persistent settings
 - [x] Icon
+- [ ] Improve render stability
+- [ ] Outlines
 - [ ] GPU rendering
 - [ ] Image crosshairs
 - [ ] Framebuffer write callbacks instead of loop thread (possibly using PAGE_GUARD)
