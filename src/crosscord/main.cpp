@@ -47,11 +47,17 @@ void ReportError(const char* cErrorMessage) {
 }
 
 int WinMain(HINSTANCE, HINSTANCE, PSTR, int) {
+	/*
+		get exe's path
+	*/
 	char cModuleName[MAX_PATH];
 	GetModuleFileNameA(reinterpret_cast<HMODULE>(GetModuleHandleA(NULL)), cModuleName, MAX_PATH);
 	std::string sModuleName(cModuleName);
 	std::string sModulePath = sModuleName.substr(0, sModuleName.find_last_of('\\'));
 
+	/*
+		allocate and setup console on debug builds
+	*/
 #ifdef _DEBUG
 	AllocConsole();
 
@@ -86,6 +92,9 @@ int WinMain(HINSTANCE, HINSTANCE, PSTR, int) {
 
 	LogInfo("Ready");
 
+	/*
+		wait for any thread to stop, detect if it stopped due to an error
+	*/
 	std::chrono::milliseconds ThreadWaitTime(THREAD_WAIT_RATE);
 	bool bThreadHalted = false;
 	while (!bThreadHalted) {
@@ -109,6 +118,9 @@ int WinMain(HINSTANCE, HINSTANCE, PSTR, int) {
 	COverlay::Get()->Shutdown();
 	CGLManager::Get()->Shutdown();
 
+	/*
+		wait for all threads to be finished before leaving
+	*/
 	vFutures.clear();
 
 	return 0;
