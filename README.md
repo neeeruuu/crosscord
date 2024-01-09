@@ -1,4 +1,8 @@
-<h1 align="center"><b>CrossCord</b></h1>
+<h1 align="center">
+    <img src="resources/icon.png" alt="icon" width="50" height="50">
+    <br/>
+    <b>CrossCord</b>
+</h1>
 
 <p align="center">
     An anticheat compatible crosshair that uses Discord's overlay
