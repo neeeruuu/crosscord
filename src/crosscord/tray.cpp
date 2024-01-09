@@ -29,8 +29,9 @@ void CTray::_AddIcon() {
 	NOTIFYICONDATA IconData;
 	IconData.cbSize = sizeof(IconData);
 	IconData.hWnd = reinterpret_cast<HWND>(hWnd);
-	IconData.uFlags = NIF_TIP | NIF_MESSAGE;
+	IconData.uFlags = NIF_TIP | NIF_MESSAGE | NIF_ICON;
 	IconData.uCallbackMessage = TRAY_MESSAGE_ID;
+	IconData.hIcon = LoadIcon(GetModuleHandleA(NULL), "IDI_ICON1");
 
 	memcpy(IconData.szTip, "CrossCord", 128);
 

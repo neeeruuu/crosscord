@@ -20,10 +20,10 @@
 - [x] UI
 - [x] Tray icon
 - [x] Persistent settings
+- [x] Icon
 - [ ] GPU rendering
 - [ ] Image crosshairs
 - [ ] Framebuffer write callbacks instead of loop thread (possibly using PAGE_GUARD)
-- [ ] Icon
 - [ ] Keybinds
 - [ ] Improve comments
 
