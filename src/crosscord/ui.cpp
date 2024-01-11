@@ -66,9 +66,9 @@ void CInterface::Draw() {
 		bool bHasGame = strlen(cWindowName) != 0;
 
 		static ImGuiCond WndSizeCond = ImGuiCond_Once;
-		ImGui::SetNextWindowSize({350 * fDPIScale, 450 * fDPIScale }, WndSizeCond);
+		ImGui::SetNextWindowSize({350 * fDPIScale, 200 * fDPIScale }, WndSizeCond);
 		WndSizeCond = ImGuiCond_Once;
-		ImGui::SetNextWindowSizeConstraints({ 300 * fDPIScale, 400 * fDPIScale }, { 400 * fDPIScale, 500 * fDPIScale });
+		ImGui::SetNextWindowSizeConstraints({ 300 * fDPIScale, 200 * fDPIScale }, { 400 * fDPIScale, 250 * fDPIScale });
 		if (ImGui::Begin("CrossCord " CROSSCORD_VER, &m_ShouldDraw, ImGuiWindowFlags_NoCollapse)) {
 			ImGuiStyle* pStyle = &ImGui::GetStyle();
 			CCrosshair* pCrosshair = CCrosshair::Get();
