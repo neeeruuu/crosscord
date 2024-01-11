@@ -40,6 +40,9 @@ void CInterface::_Init(GLFWwindow* pWindow) {
 	IO.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 	IO.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
 
+	IO.IniFilename = NULL;
+	IO.LogFilename = NULL;
+
 	const char* cGLSLVer = "#version 130";
 	ImGui_ImplGlfw_InitForOpenGL(pWindow, true);
 	ImGui_ImplOpenGL3_Init(cGLSLVer);
