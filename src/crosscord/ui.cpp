@@ -9,6 +9,15 @@
 #include <backends/imgui_impl_win32.h>
 #include <backends/imgui_impl_glfw.h>
 
+#include <GLFW/glfw3.h>
+
+#include "util/log.h"
+
+#include <imfilebrowser.h>
+#include <spng.h>
+
+#include <filesystem>
+
 INITIALIZE_SINGLETON(CInterface);
 
 #define WND_DEF_X 350.f
@@ -77,6 +86,119 @@ void CInterface::DrawCircleSettings(CCrosshair* pCrosshair) {
 void CInterface::DrawArrowSettings(CCrosshair* pCrosshair) {
 	CROSSHAIR_SETTING(SliderUInt("Length", &pCrosshair->m_Settings.m_ArrowLength, 1, 64));
 	CROSSHAIR_SETTING(SliderUInt("Width", &pCrosshair->m_Settings.m_ArrowWidth, 0, 64));
+}
+
+void CInterface::DrawImageSettings(CCrosshair* pCrosshair) {
+	static ImGui::FileBrowser ImageDialog;
+	static bool bInit = false;
+	if (!bInit) {
+		ImageDialog.SetTitle("Select an image");
+		ImageDialog.SetTypeFilters({ ".png" });
+		bInit = true;
+	}
+
+	ImVec2 RegionAvail = ImGui::GetContentRegionAvail();
+
+	ImGui::SetCursorPosX(RegionAvail.x / 2 - ((ImGui::CalcTextSize("Open image").x + ImGui::GetStyle().FramePadding.x * 2) / 2));
+	if (ImGui::Button("Open image")) {
+		ImageDialog.Open();
+	}
+	
+	ImageDialog.Display();
+
+	if (ImageDialog.HasSelected()) {
+		std::string sFilePath = ImageDialog.GetSelected().string();
+		LoadImageFromPath(sFilePath.c_str());
+		pCrosshair->_SettingChanged();
+		ImageDialog.ClearSelected();
+	}
+
+	float fWidth = RegionAvail.x / 3;
+	if (m_ImagePreviewTex) {
+		#pragma warning(push)
+		#pragma warning(disable: 4312)
+		ImGui::Image(reinterpret_cast<void*>(m_ImagePreviewTex), { fWidth, fWidth / m_ImageAspectRatio });
+		#pragma warning(pop)
+	}
+	else 
+		ImGui::Image(0, { fWidth, fWidth });
+
+	ImGui::SameLine();
+	ImVec2 vCursorPos = ImGui::GetCursorPos();
+	ImGui::SetNextItemWidth(fWidth * 1.5f);
+	CROSSHAIR_SETTING(ImGui::SliderFloat("Size", &pCrosshair->m_Settings.m_ImageSize, 0.1f, 1.f));
+
+	ImGui::SetNextItemWidth(fWidth * 1.5f);
+	ImGui::SetCursorPos({ vCursorPos.x, vCursorPos.y + ImGui::GetTextLineHeight() * 2 });
+	CROSSHAIR_SETTING(ImGui::SliderFloat("Alpha", &pCrosshair->m_Settings.m_ImageAlpha, 0.f, 1.f));
+}
+
+void CInterface::LoadImageFromPath(const char* cPath) {
+	FILE* pFile = nullptr;
+	size_t lImageSize = 0;
+	void* pImageBuffer = nullptr;
+
+	if (fopen_s(&pFile, cPath, "rb") || !pFile) {
+		LogError("Unable to open file: {}", cPath);
+		return;
+	}
+
+	spng_ctx* pContext = spng_ctx_new(0);
+	if (spng_set_png_file(pContext, pFile)) {
+		LogError("Failed to set decoder png for file: {}", cPath);
+		spng_ctx_free(pContext);
+		return;
+	}
+
+	if (spng_decoded_image_size(pContext, SPNG_FMT_RGBA8, &lImageSize)) {
+		LogError("Failed to get decoded image size for file: {}", cPath);
+		spng_ctx_free(pContext);
+		return;
+	}
+	pImageBuffer = malloc(lImageSize);
+
+	if (!pImageBuffer) {
+		LogError("Failed to allocate memory for png");
+		spng_ctx_free(pContext);
+		return;
+	}
+
+	if (spng_decode_image(pContext, pImageBuffer, lImageSize, SPNG_FMT_RGBA8, 0)) {
+		LogError("Failed to decode image for file: {}", cPath);
+		spng_ctx_free(pContext);
+		return;
+	}
+
+	spng_ihdr ImgHeader;
+	if (spng_get_ihdr(pContext, &ImgHeader)) {
+		LogError("Failed to get header for file: {}", cPath);
+		spng_ctx_free(pContext);
+		return;
+	}
+
+	CCrosshair::Get()->SetImageBuffer(pImageBuffer, lImageSize, ImgHeader.width, ImgHeader.height);
+
+	if (m_ImagePreviewTex)
+		glDeleteTextures(1, &m_ImagePreviewTex);
+
+	GLint iPrevTexture;
+	glGetIntegerv(GL_TEXTURE_BINDING_2D, &iPrevTexture);
+
+	glGenTextures(1, &m_ImagePreviewTex);
+	glBindTexture(GL_TEXTURE_2D, m_ImagePreviewTex);
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8,
+		ImgHeader.width, ImgHeader.height, 0,
+		GL_RGBA, GL_UNSIGNED_BYTE,
+		reinterpret_cast<GLvoid*>(pImageBuffer));
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+	m_ImageAspectRatio = static_cast<float>(ImgHeader.width) / static_cast<float>(ImgHeader.height);
+
+	spng_ctx_free(pContext);
+	free(pImageBuffer);
+	fclose(pFile);
 }
 
 void CInterface::DPIFix() {
@@ -177,15 +299,18 @@ void CInterface::Draw() {
 			ImGui::Separator();
 
 			switch (pCrosshair->m_Settings.m_Type) {
-			case CROSSHAIR_CROSS:
-				DrawCrossSettings(pCrosshair);
-				break;
-			case CROSSHAIR_CIRCLE:
-				DrawCircleSettings(pCrosshair);
-				break;
-			case CROSSHAIR_ARROW:
-				DrawArrowSettings(pCrosshair);
-				break;
+				case CROSSHAIR_CROSS:
+					DrawCrossSettings(pCrosshair);
+					break;
+				case CROSSHAIR_CIRCLE:
+					DrawCircleSettings(pCrosshair);
+					break;
+				case CROSSHAIR_ARROW:
+					DrawArrowSettings(pCrosshair);
+					break;
+				case CROSSHAIR_IMAGE:
+					DrawImageSettings(pCrosshair);
+					break;
 			}
 		}
 		ImGui::End();

@@ -47,6 +47,9 @@ bool CConfigManager::LoadConfig(const char* cName) {
 	JSONGET("circlerad", pSettings->m_CircleRadius);
 	JSONGET("circlehollow", pSettings->m_CircleHollow);
 
+	JSONGET("imagealpha", pSettings->m_ImageAlpha);
+	JSONGET("imagesize", pSettings->m_ImageSize);
+
 	CfgStream.close();
 
 	return true;
@@ -76,6 +79,9 @@ bool CConfigManager::SaveConfig(const char* cName) {
 
 	Config["circlerad"] = pSettings->m_CircleRadius;
 	Config["circlehollow"] = pSettings->m_CircleHollow;
+
+	Config["imagealpha"] = pSettings->m_ImageAlpha;
+	Config["imagesize"] = pSettings->m_ImageSize;
 
 	std::ofstream ConfigFile;
 	ConfigFile.open(sConfigPath);
