@@ -2,13 +2,15 @@
 
 #include "util/macros.h"
 
+#include <mutex>
+
 enum ECrosshairType {
 	CROSSHAIR_CROSS,
 	CROSSHAIR_CIRCLE,
 	CROSSHAIR_ARROW,
-	/*CROSSHAIR_IMAGE*/
+	CROSSHAIR_IMAGE
 };
-inline const char* cCrosshairTypes[]{ "Cross", "Circle", "Arrow", /*"Image"*/ };
+inline const char* cCrosshairTypes[]{ "Cross", "Circle", "Arrow", "Image" };
 
 struct SCrosshairSettings {
 	bool m_Enabled = true;
@@ -28,6 +30,12 @@ struct SCrosshairSettings {
 	unsigned int m_ArrowWidth = 2;
 
 	unsigned int m_CircleRadius = 5;
+	unsigned int m_ImageHeight = 0;
+	unsigned int m_ImageWidth = 0;
+
+	float m_ImageSize = 100;
+	float m_ImageAlpha = 1.f;
+	void* m_ImageBuffer = nullptr;
 };
 
 class CCrosshair {
@@ -41,8 +49,10 @@ public:
 
 	SCrosshairSettings m_Settings;
 	SCrosshairSettings _m_PrevSettings;
-private:
 
+	void SetImageBuffer(void* pBuffer, unsigned long long lSize, int iWidth, int iHeight);
+	std::mutex ImageMutex;
+private:
 	CCrosshair() {};
 
 	void DrawBox(unsigned int iX0, unsigned int iY0, unsigned int iX1, unsigned int iY1, struct SColor* Col);

@@ -13,6 +13,7 @@ bool CCrosshair::Initialize() {
 
 		memcpy(&pCrosshair->_m_PrevSettings, &pCrosshair->m_Settings, sizeof(SCrosshairSettings));
 		memset(&pCrosshair->_m_PrevSettings.m_Color, 0, sizeof(int) * 4);
+		pCrosshair->_m_PrevSettings.m_ImageBuffer = nullptr;
 		}, true);
 	return true;
 }
@@ -142,6 +143,49 @@ void CCrosshair::_Draw(SFrameInfo* pFrameInfo, SCrosshairSettings* pSettings) {
 			}
 			break;
 		}
+		case CROSSHAIR_IMAGE: {
+			if (!pSettings->m_ImageBuffer) {
+				int iStartX = iPosX - (pSettings->m_ImageHeight / 2);
+				int iStartY = iPosY - (pSettings->m_ImageWidth / 2);
+
+				int iEndX = iPosX + (pSettings->m_ImageHeight / 2);
+				int iEndY = iPosY + (pSettings->m_ImageWidth / 2);
+
+				DrawBox(iStartX, iStartY, iEndX, iEndY, &TargetColor);
+			}
+			else {
+				SColor* pPixelBuffer = reinterpret_cast<SColor*>(pFrameInfo->m_Pixels);
+				ImageMutex.lock();
+
+				float fScale = pSettings->m_ImageSize / 1.f;
+				
+				unsigned int iScaledWidth = static_cast<unsigned int>(pSettings->m_ImageWidth * fScale);
+				unsigned int iScaledHeight = static_cast<unsigned int>(pSettings->m_ImageHeight * fScale);
+
+				int iUnscaledY, iUnscaledX = 0;
+
+				for (unsigned int iY = 0; iY < iScaledHeight; ++iY) {
+					for (unsigned int iX = 0; iX < iScaledWidth; ++iX) {
+						unsigned int iDestX = iPosX + (iX - iScaledWidth / 2);
+						unsigned int iDestY = iPosY + (iY - iScaledHeight / 2);
+
+						if (iDestX <= pFrameInfo->m_Width && iDestY <= pFrameInfo->m_Height) {
+							iUnscaledY = static_cast<unsigned int>(iY / fScale);
+							iUnscaledX = static_cast<unsigned int>(iX / fScale);
+
+							SColor pImageCol = reinterpret_cast<SColor*>(pSettings->m_ImageBuffer)[iUnscaledY * pSettings->m_ImageWidth + iUnscaledX];
+							SColor* pPixel = &pPixelBuffer[iDestY * pFrameInfo->m_Width + iDestX];
+							pPixel->r = pImageCol.b;
+							pPixel->g = pImageCol.g;
+							pPixel->b = pImageCol.r;
+							pPixel->a = static_cast<unsigned char>(pImageCol.a * pSettings->m_ImageAlpha);
+						}
+					}
+				}
+				ImageMutex.unlock();
+			}
+			break;
+		}
 	}
 }
 
@@ -167,4 +211,19 @@ void CCrosshair::DrawBox(unsigned int iStartX, unsigned int iStartY, unsigned in
 			pPixelBuffer[iY * pFrameInfo->m_Width + iX] = *Col;
 		}
 	}
+}
+
+void CCrosshair::SetImageBuffer(void* pBuffer, unsigned long long lSize, int iWidth, int iHeight) {
+	ImageMutex.lock();
+	if (m_Settings.m_ImageBuffer)
+		free(m_Settings.m_ImageBuffer);
+	m_Settings.m_ImageBuffer = malloc(lSize);
+	if (!m_Settings.m_ImageBuffer)
+		return;
+
+	memcpy(m_Settings.m_ImageBuffer, pBuffer, lSize);
+
+	m_Settings.m_ImageWidth = iWidth;
+	m_Settings.m_ImageHeight = iHeight;
+	ImageMutex.unlock();
 }
