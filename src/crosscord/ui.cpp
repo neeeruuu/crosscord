@@ -47,10 +47,7 @@ void CInterface::_Init(GLFWwindow* pWindow) {
 void CInterface::Shutdown() {
 	for (CCallback* Callback : m_Callbacks) { delete Callback; }
 	m_Callbacks.clear();
-
 	ImGui::DestroyContext();
-	ImGui_ImplGlfw_Shutdown();
-	ImGui_ImplOpenGL3_Shutdown();
 }
 
 /*
