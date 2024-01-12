@@ -17,16 +17,6 @@
 
 INITIALIZE_SINGLETON(COverlay);
 
-bool COverlay::SetPixel(SPixel* pPixel) {
-	if (!m_FrameInfo || pPixel->x > m_FrameInfo->m_Width || pPixel->y > m_FrameInfo->m_Height)
-		return false;
-	
-	SColor* pPixelBuffer = reinterpret_cast<SColor*>(&m_FrameInfo->m_Pixels[0]);
-	pPixelBuffer[pPixel->x * m_FrameInfo->m_Width + pPixel->y] = pPixel->col;
-
-	return true;
-}
-
 bool COverlay::RenderThread() {
 	while (!m_ShutdownQueued) {
 		std::this_thread::sleep_for(std::chrono::milliseconds(RENDER_TIMING));

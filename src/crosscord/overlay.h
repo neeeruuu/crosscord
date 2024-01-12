@@ -34,8 +34,6 @@ public:
 	bool RenderThread();
 	bool DetectionThread();
 
-	bool SetPixel(SPixel* pPixel);
-
 	inline char* GetActiveWindowName() { return m_TargetWindowName; }
 	inline SFrameInfo* GetFrameInfo() { return m_FrameInfo; }
 private:
