@@ -1,5 +1,6 @@
 #include "config.h"
 #include "crosshair.h"
+#include "ui.h"
 
 #include "util/log.h"
 
@@ -50,6 +51,8 @@ bool CConfigManager::LoadConfig(const char* cName) {
 	JSONGET("imagealpha", pSettings->m_ImageAlpha);
 	JSONGET("imagesize", pSettings->m_ImageSize);
 
+	JSONGET("imagepath", CInterface::Get()->m_LastImagePath);
+
 	CfgStream.close();
 
 	return true;
@@ -82,6 +85,8 @@ bool CConfigManager::SaveConfig(const char* cName) {
 
 	Config["imagealpha"] = pSettings->m_ImageAlpha;
 	Config["imagesize"] = pSettings->m_ImageSize;
+
+	Config["imagepath"] = CInterface::Get()->m_LastImagePath;
 
 	std::ofstream ConfigFile;
 	ConfigFile.open(sConfigPath);

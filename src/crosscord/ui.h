@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <string>
 
 #include "util/macros.h"
 
@@ -14,6 +15,8 @@ public:
 	void QueueBringToFront() { m_ShouldBringToFront = true; m_ShouldDraw = true; }
 
 	void Draw();
+
+	std::string m_LastImagePath = "";
 private:
 	void DPIFix();
 

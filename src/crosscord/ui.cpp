@@ -97,6 +97,7 @@ void CInterface::DrawImageSettings(CCrosshair* pCrosshair) {
 	if (!bInit) {
 		ImageDialog.SetTitle("Select an image");
 		ImageDialog.SetTypeFilters({ ".png" });
+		ImageDialog.SetPwd(m_LastImagePath.substr(0, m_LastImagePath.length() - 1));
 		bInit = true;
 	}
 
@@ -113,6 +114,8 @@ void CInterface::DrawImageSettings(CCrosshair* pCrosshair) {
 		std::string sFilePath = ImageDialog.GetSelected().string();
 		LoadImageFromPath(sFilePath.c_str());
 		pCrosshair->_SettingChanged();
+
+		m_LastImagePath = ImageDialog.GetSelected().remove_filename().string();
 		ImageDialog.ClearSelected();
 	}
 
@@ -320,6 +323,7 @@ void CInterface::Draw() {
 	}
 
 	ImGui::Render();
+	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
 	if (ImGui::GetIO().ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
 	{
