@@ -29,9 +29,10 @@ file(GLOB_RECURSE crosscord_headers CONFIGURE_DEPENDS "src/crosscord/*.h")
 
 add_executable(crosscord WIN32 ${crosscord_sources} ${crosscord_headers} "resources/resources.rc")
 target_link_libraries(crosscord PRIVATE
-	# imgui_filebrowser
+	imgui_filebrowser
 	nlohmann_json
 	opengl32
+	libspng
     imgui
 	glfw
 	fmt)
