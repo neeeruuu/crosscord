@@ -5,7 +5,7 @@
 </h1>
 
 <p align="center">
-    An anticheat compatible crosshair that uses Discord's overlay
+    An anticheat friendly crosshair that uses Discord's overlay
     <br/>
     <a href="https://github.com/neeeruuu/crosscord/releases/latest"><b>Download</b></a>
     <br/>
