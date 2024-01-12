@@ -4,6 +4,7 @@
 add_subdirectory(fmt)
 add_subdirectory(json)
 add_subdirectory(glfw)
+add_subdirectory(miniz)
 
 # ---------------------------
 # imgui
@@ -23,5 +24,15 @@ target_include_directories(imgui SYSTEM PUBLIC imgui)
 # ---------------------------
 # imgui-filebrowser
 # ---------------------------
-# add_library(imgui_filebrowser INTERFACE)
-# target_include_directories(imgui_filebrowser SYSTEM INTERFACE "imgui-filebrowser")
+add_library(imgui_filebrowser INTERFACE)
+target_include_directories(imgui_filebrowser SYSTEM INTERFACE "imgui-filebrowser")
+
+# ---------------------------
+# libspng
+# ---------------------------
+add_library(libspng STATIC libspng/spng/spng.c libspng/spng/spng.h)
+target_link_libraries(libspng PRIVATE miniz)
+target_include_directories(libspng SYSTEM PUBLIC libspng/spng)
+add_compile_definitions(SPNG_USE_MINIZ)
+# add_subdirectory(libspng)
+# add_compile_options("SPNG_USE_MINIZ")
