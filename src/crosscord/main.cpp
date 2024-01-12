@@ -113,7 +113,7 @@ int WinMain(HINSTANCE, HINSTANCE, PSTR, int) {
 	}
 
 	LogInfo("Shutting down");
-	CInterface::Get()->Shutdown();
+	//CInterface::Get()->Shutdown();
 	CTray::Get()->Shutdown();
 	COverlay::Get()->Shutdown();
 	CGLManager::Get()->Shutdown();
