@@ -25,11 +25,10 @@
 - [x] Tray icon
 - [x] Persistent settings
 - [x] Icon
+- [x] Image crosshairs
 - [ ] Improve render consistency
 - [ ] Improve comments
 - [ ] Outlines
-- [ ] GPU rendering
-- [ ] Image crosshairs
 - [ ] Framebuffer write callbacks instead of loop thread (possibly using PAGE_GUARD)
 - [ ] Keybinds
 
