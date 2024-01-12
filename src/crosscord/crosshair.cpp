@@ -191,9 +191,9 @@ void CCrosshair::_Draw(SFrameInfo* pFrameInfo, SCrosshairSettings* pSettings) {
 
 void CCrosshair::_SettingChanged() {
 	SFrameInfo* pFrameInfo = COverlay::Get()->GetFrameInfo();
+	CConfigManager::Get()->SaveConfig("config");
 	if (!pFrameInfo)
 		return;
-	CConfigManager::Get()->SaveConfig("config");
 	pFrameInfo->m_Frame++;
 }
 
