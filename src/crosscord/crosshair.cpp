@@ -218,8 +218,10 @@ void CCrosshair::SetImageBuffer(void* pBuffer, unsigned long long lSize, int iWi
 	if (m_Settings.m_ImageBuffer)
 		free(m_Settings.m_ImageBuffer);
 	m_Settings.m_ImageBuffer = malloc(lSize);
-	if (!m_Settings.m_ImageBuffer)
+	if (!m_Settings.m_ImageBuffer) {
+		ImageMutex.unlock();
 		return;
+	}
 
 	memcpy(m_Settings.m_ImageBuffer, pBuffer, lSize);
 
