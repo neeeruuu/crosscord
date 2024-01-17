@@ -45,9 +45,9 @@ private:
 	void* m_MapFile = nullptr;
 	void* m_MapView = nullptr;
 
-	bool m_ShutdownQueued = false;
-
 	SFrameInfo* m_FrameInfo = nullptr;
+
+	bool m_ShutdownQueued = false;
 
 	std::mutex m_MapMutex;
 
