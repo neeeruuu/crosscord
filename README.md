@@ -17,7 +17,7 @@
 # Usage
 1. Enable Discord's overlay
 2. Open CrossCord
-3. The moment Discord draws an overlay on a game, CrossCord will draw a crosshair on top
+3. The moment Discord draws its overlay on a game, a crosshair will be drawn
 
 # To-do
 - [x] Basic crosshair types (cross, triangle, circle)
