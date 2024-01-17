@@ -11,8 +11,10 @@
 
 #include <processenv.h>
 
+#include <synchapi.h>
 #include <consoleapi.h>
 #include <libloaderapi.h>
+#include <errhandlingapi.h>
 
 #define InitializeComponent(Name, ClassName) \
 	LogInfo("Initializing " Name);\
@@ -28,6 +30,9 @@
 #define MB_OK                       0x00000000L
 #define MB_ICONHAND                 0x00000010L
 #define MB_ICONERROR                MB_ICONHAND
+
+// from: winerror.h
+#define ERROR_ALREADY_EXISTS		183L
 
 #define THREAD_WAIT_RATE 1000 / 60
 
@@ -47,6 +52,16 @@ void ReportError(const char* cErrorMessage) {
 }
 
 int WinMain(HINSTANCE, HINSTANCE, PSTR, int) {
+	/*
+		prevent program from running twice
+	*/
+	HANDLE hMutex = CreateMutex(NULL, TRUE, "hi");
+
+	if (GetLastError() == ERROR_ALREADY_EXISTS) {
+		ReportError("Already running");
+		return 0;
+	}
+
 	/*
 		get exe's path
 	*/
@@ -117,6 +132,8 @@ int WinMain(HINSTANCE, HINSTANCE, PSTR, int) {
 	CTray::Get()->Shutdown();
 	COverlay::Get()->Shutdown();
 	CGLManager::Get()->Shutdown();
+
+	ReleaseMutex(hMutex);
 
 	/*
 		wait for all threads to be finished before leaving
