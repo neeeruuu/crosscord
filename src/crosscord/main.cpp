@@ -57,7 +57,7 @@ int WinMain(HINSTANCE, HINSTANCE, PSTR, int) {
 	*/
 	HANDLE hMutex = CreateMutex(NULL, TRUE, "hi");
 
-	if (GetLastError() == ERROR_ALREADY_EXISTS) {
+	if (GetLastError() == ERROR_ALREADY_EXISTS || !hMutex) {
 		ReportError("Already running");
 		return 0;
 	}
