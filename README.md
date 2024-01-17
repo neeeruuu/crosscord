@@ -26,11 +26,12 @@
 - [x] Persistent settings
 - [x] Icon
 - [x] Image crosshairs
-- [ ] Improve render consistency
+- [x] Improve render consistency
 - [ ] Improve comments
 - [ ] Outlines
 - [ ] Framebuffer write callbacks instead of loop thread (possibly using PAGE_GUARD)
 - [ ] Keybinds
+- [ ] Refactor image rendering
 
 # Building
 ### Requirements
