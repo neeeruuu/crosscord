@@ -38,8 +38,8 @@ void CCrosshair::_Draw(SFrameInfo* pFrameInfo, SCrosshairSettings* pSettings) {
 
 	switch (pSettings->m_Type) {
 		case CROSSHAIR_CROSS: {
-			int iStartX, iStartY;
-			int iEndX, iEndY;
+			unsigned int iStartX, iStartY;
+			unsigned int iEndX, iEndY;
 
 			// horizontal lines
 			iStartY = iPosY - pSettings->m_CrossWidth;
@@ -78,7 +78,7 @@ void CCrosshair::_Draw(SFrameInfo* pFrameInfo, SCrosshairSettings* pSettings) {
 		}
 		case CROSSHAIR_ARROW: {
 			SColor* pPixelBuffer = reinterpret_cast<SColor*>(pFrameInfo->m_Pixels);
-			if (iPosX - pSettings->m_ArrowLength < 0)
+			if (static_cast<int>(iPosX) - static_cast<int>(pSettings->m_ArrowLength) < 0)
 				return;
 
 			for (unsigned int iDiag = 0; iDiag < pSettings->m_ArrowLength; iDiag++) {
@@ -99,8 +99,8 @@ void CCrosshair::_Draw(SFrameInfo* pFrameInfo, SCrosshairSettings* pSettings) {
 		case CROSSHAIR_CIRCLE: {
 			SColor* pPixelBuffer = reinterpret_cast<SColor*>(pFrameInfo->m_Pixels);
 			if (pSettings->m_CircleHollow) {
-				int iXCoord = pSettings->m_CircleRadius;
-				int iYCoord = 0;
+				unsigned int iXCoord = pSettings->m_CircleRadius;
+				unsigned int iYCoord = 0;
 				int iDecision = 1 - pSettings->m_CircleRadius;
 
 				while (iXCoord >= iYCoord) {
@@ -119,17 +119,17 @@ void CCrosshair::_Draw(SFrameInfo* pFrameInfo, SCrosshairSettings* pSettings) {
 					iYCoord++;
 
 					if (iDecision <= 0)
-						iDecision = iDecision + 2 * iYCoord + 1;
+						iDecision = iDecision + 2 * static_cast<int>(iYCoord) + 1;
 					else {
 						iXCoord--;
-						iDecision = iDecision + 2 * (iYCoord - iXCoord) + 1;
+						iDecision = iDecision + 2 * static_cast<int>(iYCoord - iXCoord) + 1;
 					}
 				}
 			}
 			else {
 				for (int iY = -static_cast<int>(pSettings->m_CircleRadius); iY <= static_cast<int>(pSettings->m_CircleRadius); ++iY) {
 					for (int iX = -static_cast<int>(pSettings->m_CircleRadius); iX <= static_cast<int>(pSettings->m_CircleRadius); ++iX) {
-						unsigned int iDistSquared = iX * iX + iY * iY;
+						unsigned int iDistSquared = static_cast<unsigned int>(iX * iX + iY * iY);
 
 						if (iDistSquared <= pSettings->m_CircleRadius * pSettings->m_CircleRadius) {
 							unsigned int iDrawX = iPosX + iX;
@@ -145,11 +145,11 @@ void CCrosshair::_Draw(SFrameInfo* pFrameInfo, SCrosshairSettings* pSettings) {
 		}
 		case CROSSHAIR_IMAGE: {
 			if (!pSettings->m_ImageBuffer) {
-				int iStartX = iPosX - (pSettings->m_ImageHeight / 2);
-				int iStartY = iPosY - (pSettings->m_ImageWidth / 2);
+				unsigned int iStartX = iPosX - (pSettings->m_ImageHeight / 2);
+				unsigned int iStartY = iPosY - (pSettings->m_ImageWidth / 2);
 
-				int iEndX = iPosX + (pSettings->m_ImageHeight / 2);
-				int iEndY = iPosY + (pSettings->m_ImageWidth / 2);
+				unsigned int iEndX = iPosX + (pSettings->m_ImageHeight / 2);
+				unsigned int iEndY = iPosY + (pSettings->m_ImageWidth / 2);
 
 				DrawBox(iStartX, iStartY, iEndX, iEndY, &TargetColor);
 			}
@@ -159,10 +159,10 @@ void CCrosshair::_Draw(SFrameInfo* pFrameInfo, SCrosshairSettings* pSettings) {
 
 				float fScale = pSettings->m_ImageSize / 1.f;
 				
-				unsigned int iScaledWidth = static_cast<unsigned int>(pSettings->m_ImageWidth * fScale);
-				unsigned int iScaledHeight = static_cast<unsigned int>(pSettings->m_ImageHeight * fScale);
+				unsigned int iScaledWidth = static_cast<unsigned int>(static_cast<float>(pSettings->m_ImageWidth) * fScale);
+				unsigned int iScaledHeight = static_cast<unsigned int>(static_cast<float>(pSettings->m_ImageHeight) * fScale);
 
-				int iUnscaledY, iUnscaledX = 0;
+				unsigned int iUnscaledY, iUnscaledX = 0;
 
 				for (unsigned int iY = 0; iY < iScaledHeight; ++iY) {
 					for (unsigned int iX = 0; iX < iScaledWidth; ++iX) {
@@ -170,8 +170,8 @@ void CCrosshair::_Draw(SFrameInfo* pFrameInfo, SCrosshairSettings* pSettings) {
 						unsigned int iDestY = iPosY + (iY - iScaledHeight / 2);
 
 						if (iDestX <= pFrameInfo->m_Width && iDestY <= pFrameInfo->m_Height) {
-							iUnscaledY = static_cast<unsigned int>(iY / fScale);
-							iUnscaledX = static_cast<unsigned int>(iX / fScale);
+							iUnscaledY = static_cast<unsigned int>(static_cast<float>(iY) / fScale);
+							iUnscaledX = static_cast<unsigned int>(static_cast<float>(iX) / fScale);
 
 							SColor pImageCol = reinterpret_cast<SColor*>(pSettings->m_ImageBuffer)[iUnscaledY * pSettings->m_ImageWidth + iUnscaledX];
 							SColor* pPixel = &pPixelBuffer[iDestY * pFrameInfo->m_Width + iDestX];
@@ -213,7 +213,7 @@ void CCrosshair::DrawBox(unsigned int iStartX, unsigned int iStartY, unsigned in
 	}
 }
 
-void CCrosshair::SetImageBuffer(void* pBuffer, unsigned long long lSize, int iWidth, int iHeight) {
+void CCrosshair::SetImageBuffer(void* pBuffer, unsigned long long lSize, unsigned int iWidth, unsigned int iHeight) {
 	ImageMutex.lock();
 	if (m_Settings.m_ImageBuffer)
 		free(m_Settings.m_ImageBuffer);

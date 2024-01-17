@@ -5,6 +5,11 @@
 
 class CGLManager {
 	DECLARE_SINGLETON(CGLManager)
+
+private:
+	struct GLFWwindow* m_Window = nullptr;
+	void* m_hWnd = nullptr;
+	bool m_ShutdownQueued = false;
 public:
 	bool InitializeAndRun();
 	void Shutdown();
@@ -14,11 +19,6 @@ public:
 	__int64 _m_OriginalWndProc = 0;
 private:
 	void RenderLoop();
-
-	struct GLFWwindow* m_Window = nullptr;
-	void* m_hWnd = nullptr;
-	bool m_ShutdownQueued = false;
-
 	CGLManager() {};
 };
 

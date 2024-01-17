@@ -194,7 +194,7 @@ void CInterface::LoadImageFromPath(const char* cPath) {
 	glBindTexture(GL_TEXTURE_2D, m_ImagePreviewTex);
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8,
-		ImgHeader.width, ImgHeader.height, 0,
+		static_cast<GLsizei>(ImgHeader.width), static_cast<GLsizei>(ImgHeader.height), 0,
 		GL_RGBA, GL_UNSIGNED_BYTE,
 		reinterpret_cast<GLvoid*>(pImageBuffer));
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);

@@ -45,7 +45,7 @@ bool COverlay::DetectionThread() {
 			GetWindowThreadProcessId(hWnd, &dwWndPID);
 
 			if (dwWndPID && m_TargetProcessId != dwWndPID) {
-				if (AdquireMap(dwWndPID))
+				if (AdquireMap(static_cast<int>(dwWndPID)))
 					bHasMap = true;
 			}
 

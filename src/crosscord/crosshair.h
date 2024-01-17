@@ -50,7 +50,7 @@ public:
 	SCrosshairSettings m_Settings;
 	SCrosshairSettings _m_PrevSettings;
 
-	void SetImageBuffer(void* pBuffer, unsigned long long lSize, int iWidth, int iHeight);
+	void SetImageBuffer(void* pBuffer, unsigned long long lSize, unsigned int iWidth, unsigned int iHeight);
 	std::mutex ImageMutex;
 private:
 	CCrosshair() {};

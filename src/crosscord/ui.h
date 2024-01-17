@@ -30,11 +30,11 @@ private:
 	unsigned int m_ImagePreviewTex = 0;
 	float m_ImageAspectRatio = 0;
 
-	bool m_ShouldDraw = true;
-	bool m_ShouldBringToFront = false;
-
 	float m_MinSize[2] = { 0 };
 	float m_MaxSize[2] = { 0 };
+
+	bool m_ShouldDraw = true;
+	bool m_ShouldBringToFront = false;
 
 	std::vector<class CCallback*> m_Callbacks;
 

@@ -22,8 +22,8 @@ class CCallback {
 		CCallbackEvent* m_Event;
 
 		friend class CCallbackEvent;
-public:
-	bool m_Active;
+	public:
+		bool m_Active;
 };
 
 class CCallbackEvent {

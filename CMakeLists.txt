@@ -41,7 +41,7 @@ set_target_properties(crosscord PROPERTIES
     VS_DEBUGGER_WORKING_DIRECTORY $<TARGET_FILE_DIR:crosscord>
     OUTPUT_NAME "crosscord"
 )
-target_compile_options(crosscord PRIVATE /W4 /WX)
+target_compile_options(crosscord PRIVATE /W4 /WX) # to-do: figure out how to make /Wall not throw warnings for submodules
 
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT crosscord) # shouldn't cmake detect this automatically?
 
