@@ -145,11 +145,11 @@ void CCrosshair::_Draw(SFrameInfo* pFrameInfo, SCrosshairSettings* pSettings) {
 		}
 		case CROSSHAIR_IMAGE: {
 			if (!pSettings->m_ImageBuffer) {
-				unsigned int iStartX = iPosX - (pSettings->m_ImageHeight / 2);
-				unsigned int iStartY = iPosY - (pSettings->m_ImageWidth / 2);
+				unsigned int iStartX = iPosX - (pSettings->m_ImageWidth / 2);
+				unsigned int iStartY = iPosY - (pSettings->m_ImageHeight / 2);
 
-				unsigned int iEndX = iPosX + (pSettings->m_ImageHeight / 2);
-				unsigned int iEndY = iPosY + (pSettings->m_ImageWidth / 2);
+				unsigned int iEndX = iPosX + (pSettings->m_ImageWidth / 2);
+				unsigned int iEndY = iPosY + (pSettings->m_ImageHeight / 2);
 
 				DrawBox(iStartX, iStartY, iEndX, iEndY, &TargetColor);
 			}
