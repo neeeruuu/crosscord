@@ -1,16 +1,18 @@
 #pragma once
 
+#include "modules.h"
+#include "globals.h"
+
 #include "util/macros.h"
 
 #include <vector>
 
-#define TRAY_MESSAGE_ID 0x1337
-
-class CTray {
+class CTray : public IModule {
 	DECLARE_SINGLETON(CTray);
 public:
-	bool Initialize();
-	void Shutdown();
+	virtual bool Initialize() override;
+	virtual bool Shutdown() override;
+	virtual const char* GetName() override { return "Tray"; }
 
 	void _AddIcon();
 	void _ProcessMessage(void* hWnd, unsigned int uMsg, unsigned __int64 wParam, __int64 lParam);
@@ -18,7 +20,6 @@ private:
 	void ProcessCommand(unsigned __int64 iCommandId);
 	void DrawContextMenu(void* hWnd);
 
-	CTray() {};
-
 	std::vector<class CCallback*> m_Callbacks;
+	CTray() {};
 };
