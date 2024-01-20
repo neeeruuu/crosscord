@@ -18,17 +18,28 @@
 INITIALIZE_SINGLETON(COverlay);
 
 bool COverlay::RenderThread() {
-	while (!m_ShutdownQueued) {
-		std::this_thread::sleep_for(std::chrono::milliseconds(RENDER_INTERVAL));
+	std::chrono::system_clock::duration LastExec = std::chrono::system_clock::now().time_since_epoch();
+	bool bShouldRedraw = false;
 
+	while (!m_ShutdownQueued) {
 		if (!m_FrameInfo)
 			continue;
 
-		if (m_FrameInfo->m_Frame != m_LastFrameId) {
+		auto CurrTime = std::chrono::system_clock::now().time_since_epoch();
+		if (std::chrono::duration_cast<std::chrono::milliseconds>(CurrTime - LastExec).count() > FORCE_REDRAW_INTERVAL) {
+			bShouldRedraw = true;
+			LastExec = CurrTime;
+		}
+
+		if (m_FrameInfo->m_Frame != m_LastFrameId || bShouldRedraw) {
 			g_CB_OverlayDraw->Run(m_FrameInfo);
 			m_FrameInfo->m_Frame++;
+			m_LastFrameId = m_FrameInfo->m_Frame;
 		}
-		m_LastFrameId = m_FrameInfo->m_Frame;
+
+		bShouldRedraw = false;
+
+		std::this_thread::sleep_for(std::chrono::milliseconds(RENDER_INTERVAL));
 	}
 	return true;
 }
@@ -79,7 +90,6 @@ bool COverlay::DetectionThread() {
 
 		m_TargetProcessId = dwWndPID;
 
-		std::this_thread::sleep_for(std::chrono::milliseconds(DETECTION_TIMING * 5));
 		std::this_thread::sleep_for(std::chrono::milliseconds(DETECTION_INTERVAL * 5));
 	}
 	return true;

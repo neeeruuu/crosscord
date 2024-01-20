@@ -5,6 +5,8 @@
 
 #include <mutex>
 
+#define FORCE_REDRAW_INTERVAL 1000
+
 #define RENDER_INTERVAL 1000 / 120
 #define DETECTION_INTERVAL 500
 
