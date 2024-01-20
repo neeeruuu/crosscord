@@ -80,6 +80,7 @@ bool COverlay::DetectionThread() {
 		m_TargetProcessId = dwWndPID;
 
 		std::this_thread::sleep_for(std::chrono::milliseconds(DETECTION_TIMING * 5));
+		std::this_thread::sleep_for(std::chrono::milliseconds(DETECTION_INTERVAL * 5));
 	}
 	return true;
 }
