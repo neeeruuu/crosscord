@@ -5,8 +5,8 @@
 
 #include <mutex>
 
-#define RENDER_TIMING 1000 / 120
-#define DETECTION_TIMING 500
+#define RENDER_INTERVAL 1000 / 120
+#define DETECTION_INTERVAL 500
 
 struct SColor {
 	unsigned char r, g, b, a;

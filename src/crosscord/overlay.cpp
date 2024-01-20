@@ -19,7 +19,7 @@ INITIALIZE_SINGLETON(COverlay);
 
 bool COverlay::RenderThread() {
 	while (!m_ShutdownQueued) {
-		std::this_thread::sleep_for(std::chrono::milliseconds(RENDER_TIMING));
+		std::this_thread::sleep_for(std::chrono::milliseconds(RENDER_INTERVAL));
 
 		if (!m_FrameInfo)
 			continue;
@@ -35,7 +35,7 @@ bool COverlay::RenderThread() {
 
 bool COverlay::DetectionThread() {
 	while (!m_ShutdownQueued) {
-		std::this_thread::sleep_for(std::chrono::milliseconds(DETECTION_TIMING));
+		std::this_thread::sleep_for(std::chrono::milliseconds(DETECTION_INTERVAL));
 
 		HWND hWnd = GetTopWindow(GetDesktopWindow());
 		DWORD dwWndPID = 0;
