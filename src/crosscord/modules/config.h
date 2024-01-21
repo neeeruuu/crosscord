@@ -8,6 +8,8 @@
 // from: minwindef.h
 #define MAX_PATH 260
 
+#define JSONGET(Name, Dest, Config) if (Config->contains(Name)) Config->at(Name).get_to(Dest);
+
 class CConfigManager : public IModule {
 	DECLARE_SINGLETON(CConfigManager);
 public:
