@@ -41,12 +41,12 @@ bool CModuleManager::InitializeAll() {
 }
 
 bool CModuleManager::ShutdownAll() {
-	bool bHadCleanShutdown = true;
 	if (!m_Initialized)
-		return bHadCleanShutdown;
+		return false;
 
 	LogInfo("Shutting down");
 
+	bool bHadCleanShutdown = true;
 	m_Mutex.lock();
 	for (IModule* Mod : m_Modules) {
 		LogInfo("Stopping module: {}", Mod->GetName());
