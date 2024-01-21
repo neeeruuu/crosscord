@@ -23,8 +23,11 @@ private:
 	bool m_ShutdownQueued = false;
 };
 
+// passes: GLFWWindow*
 inline CCallbackEvent* g_CB_GLInit = new CCallbackEvent();
+// passes: void
 inline CCallbackEvent* g_CB_GLShutdown = new CCallbackEvent();
+// passes: void
 inline CCallbackEvent* g_CB_GLDraw = new CCallbackEvent();
-
+// passes: HWND hWnd, unsigned int uMsg, unsigned __int64 wParam, __int64 lParam
 inline CCallbackEvent* g_CB_WndProc = new CCallbackEvent();
