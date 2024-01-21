@@ -2,17 +2,28 @@
 
 #include "util/log.h"
 
-#include <functional>
-
 #define GLFW_EXPOSE_NATIVE_WIN32
 #include <GLFW/glfw3.h>
 #include <GLFW/glfw3native.h>
 
-INITIALIZE_SINGLETON(CGLManager);
+INSTANTIATE_SINGLETON(CGLManager);
 
-bool CGLManager::InitializeAndRun() {
+bool CGLManager::Initialize() {
+	CModuleManager::Get()->RegisterFuture(std::move(std::async(std::launch::async, &CGLManager::Run, this)));
+	return true;
+}
+
+bool CGLManager::Shutdown() {
+	m_ShutdownQueued = true;
+	return true;
+}
+
+bool CGLManager::Run() {
+	/*
+		glfw initialization
+	*/
 	if (!glfwInit()) {
-		LogError("failed to initialize glfw");
+		LogError("GLFW failed to initialize");
 		return false;
 	}
 
@@ -22,45 +33,41 @@ bool CGLManager::InitializeAndRun() {
 
 	m_Window = glfwCreateWindow(1, 1, "crosscord", nullptr, nullptr);
 	if (!m_Window) {
-		LogError("failed to create glfw window");
+		LogError("Failed to create glfw window");
 		return false;
 	}
-
 	m_hWnd = glfwGetWin32Window(m_Window);
-	
+
+	glfwMakeContextCurrent(m_Window);
+	glfwSwapInterval(1);
+	g_CB_GLInit->Run(m_Window);
+
+	/*
+		wndproc hook
+	*/
 	auto WndProcCallback = +[](HWND hWnd, unsigned int uMsg, unsigned __int64 wParam, __int64 lParam) -> __int64 {
 		CGLManager* pGLMan = CGLManager::Get();
 		g_CB_WndProc->Run(hWnd, uMsg, wParam, lParam);
 		return CallWindowProcA(reinterpret_cast<WNDPROC>(pGLMan->_m_OriginalWndProc), hWnd, uMsg, wParam, lParam);
 	};
-
 	_m_OriginalWndProc = SetWindowLongPtrA(reinterpret_cast<HWND>(m_hWnd), GWLP_WNDPROC, reinterpret_cast<long long>(WndProcCallback));
 
-	glfwMakeContextCurrent(m_Window);
-	glfwSwapInterval(1);
-
-	g_CB_GLInit->Run(m_Window);
-
-	RenderLoop();
-
-	return true;
-}
-
-void CGLManager::Shutdown() { m_ShutdownQueued = true; }
-
-void* CGLManager::GetWindowHandle() { return m_hWnd; }
-
-void CGLManager::RenderLoop() {
+	/*
+		draw loop
+	*/
 	while (!glfwWindowShouldClose(m_Window) && !m_ShutdownQueued) {
 		glfwPollEvents();
-		g_CB_GLRender->Run();
+		g_CB_GLDraw->Run();
 	}
 
+	/*
+		cleanup
+	*/
 	g_CB_GLShutdown->Run();
 
 	glfwSetWindowShouldClose(m_Window, 1);
 	glfwDestroyWindow(m_Window);
 	glfwTerminate();
 
-	m_Window = nullptr;
+	return true;
 }
