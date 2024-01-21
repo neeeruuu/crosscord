@@ -27,11 +27,11 @@
 - [x] Icon
 - [x] Image crosshairs
 - [x] Improve render consistency
-- [ ] Improve comments
+- [x] Refactor image rendering
+- [x] Improve comments
 - [ ] Outlines
 - [ ] Framebuffer write callbacks instead of loop thread (possibly using PAGE_GUARD)
 - [ ] Keybinds
-- [ ] Refactor image rendering
 
 # Building
 ### Requirements
