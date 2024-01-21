@@ -1,30 +1,12 @@
 #include "util/log.h"
 
-#include "gl.h"
-#include "ui.h"
-#include "tray.h"
-#include "config.h"
-#include "overlay.h"
-#include "crosshair.h"
-
-#include <future>
-
-#include <processenv.h>
+#include "modules.h"
+#include "defines.h"
+#include "globals.h"
 
 #include <synchapi.h>
-#include <consoleapi.h>
 #include <libloaderapi.h>
 #include <errhandlingapi.h>
-
-#define InitializeComponent(Name, ClassName) \
-	LogInfo("Initializing " Name);\
-	if (!ClassName::Get()->Initialize()) {\
-		ReportError(Name " failed to initialize");\
-		return 1;\
-	}
-
-// from: WinBase.h
-#define STD_OUTPUT_HANDLE ((DWORD)-11)
 
 // from: WinUser.h
 #define MB_OK                       0x00000000L
@@ -34,111 +16,99 @@
 // from: winerror.h
 #define ERROR_ALREADY_EXISTS		183L
 
-#define THREAD_WAIT_RATE 1000 / 60
+#ifdef _DEBUG
+	#include <consoleapi.h>
+	#include <processenv.h>
 
-void ReportError(const char* cErrorMessage) {
+	// from: WinBase.h
+	#define STD_OUTPUT_HANDLE ((DWORD)-11)
+
+	void CreateConsole() {
+		/*
+			alloc console and open stdout
+		*/
+		AllocConsole();
+		FILE* pConOut;
+		freopen_s(&pConOut, "CONOUT$", "w", stdout);
+
+		/*
+			enable ansi escape sequences
+		*/
+		HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+		DWORD dwMode = 0;
+		GetConsoleMode(hConsole, &dwMode);
+		dwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+		SetConsoleMode(hConsole, dwMode);
+	}
+#else
+	#define CreateConsole()
+#endif
+
+int ReportError(const char* cErrorMessage) {
 	LogError("Fatal error ocurred during initialization - {}", cErrorMessage);
 
+	/*
+		get address and call MessageBoxA
+	*/
 	typedef int (*tMessageBoxA) (void* hWnd, const char* lpText, const char* lpCaption, unsigned int uType);
 
 	HMODULE hUser32 = LoadLibraryA("user32.dll");
 	if (!hUser32)
-		return;
+		return 1;
 
 	tMessageBoxA MessageBoxA = reinterpret_cast<tMessageBoxA>(GetProcAddress(hUser32, "MessageBoxA"));
 	if (!MessageBoxA)
-		return;
+		return 1;
 	MessageBoxA(0, cErrorMessage, "crosscord failed to load", MB_ICONERROR | MB_OK);
+
+	return 1;
 }
 
-int WinMain(HINSTANCE, HINSTANCE, PSTR, int) {
+int WinMain(void*, void*, char*, int) {
 	/*
 		prevent program from running twice
 	*/
-	HANDLE hMutex = CreateMutex(NULL, TRUE, "hi");
-
-	if (GetLastError() == ERROR_ALREADY_EXISTS || !hMutex) {
-		ReportError("Already running");
-		return 0;
-	}
+	HANDLE hMutex = CreateMutex(NULL, TRUE, "CROSSCORD_MTX");
+	if (GetLastError() == ERROR_ALREADY_EXISTS || !hMutex)
+		return ReportError("Crosscord is already running!");
 
 	/*
-		get exe's path
+		get program's path
 	*/
 	char cModuleName[MAX_PATH];
 	GetModuleFileNameA(reinterpret_cast<HMODULE>(GetModuleHandleA(NULL)), cModuleName, MAX_PATH);
 	std::string sModuleName(cModuleName);
 	std::string sModulePath = sModuleName.substr(0, sModuleName.find_last_of('\\'));
 
+	memcpy(g_ModulePath, sModulePath.c_str(), sModulePath.length());
+	g_ModulePath[sModulePath.length()] = '\0';
+
 	/*
-		allocate and setup console on debug builds
+		alloc and configure console on dbg builds
 	*/
-#ifdef _DEBUG
-	AllocConsole();
+	CreateConsole();
 
-	FILE* pConOut;
-	freopen_s(&pConOut, "CONOUT$", "w", stdout);
-
-	HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-	DWORD dwMode = 0;
-	GetConsoleMode(hConsole, &dwMode);
-	dwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
-	SetConsoleMode(hConsole, dwMode);
-#endif
-	
+	/*
+		initialize log and report version
+	*/
 	LogInit("crosscord", fmt::format("{}\\logs\\", sModulePath).c_str());
-
 	LogInfo("CrossCord" CROSSCORD_VER);
-	LogInfo("Initializing");
-
-	CConfigManager::Get()->SetConfigPath(sModulePath.c_str());
-
-	LogInfo("Initializing components");
-	InitializeComponent("UI", CInterface);
-	InitializeComponent("Tray", CTray);
-	InitializeComponent("Crosshair renderer", CCrosshair);
-	InitializeComponent("Config", CConfigManager);
-
-	LogInfo("Creating threads");
-	std::vector<std::future<bool>> vFutures;
-	vFutures.push_back(std::async(std::launch::async, &CGLManager::InitializeAndRun, CGLManager::Get()));
-	vFutures.push_back(std::async(std::launch::async, &COverlay::RenderThread, COverlay::Get()));
-	vFutures.push_back(std::async(std::launch::async, &COverlay::DetectionThread, COverlay::Get()));
-
-	LogInfo("Ready");
 
 	/*
-		wait for any thread to stop, detect if it stopped due to an error
+		initialize everything
 	*/
-	std::chrono::milliseconds ThreadWaitTime(THREAD_WAIT_RATE);
-	bool bThreadHalted = false;
-	while (!bThreadHalted) {
-		for (std::future<bool>& Future : vFutures) {
-			std::future_status Status = Future.wait_for(ThreadWaitTime);
-
-			if (Status != std::future_status::ready)
-				continue;
-
-			if (!Future.get())
-				LogWarning("Thread stopped with error");
-
-			bThreadHalted = true;
-			break;
-		}
-	}
-
-	LogInfo("Shutting down");
-	//CInterface::Get()->Shutdown();
-	CTray::Get()->Shutdown();
-	COverlay::Get()->Shutdown();
-	CGLManager::Get()->Shutdown();
-
-	ReleaseMutex(hMutex);
+	if (!CModuleManager::Get()->InitializeAll())
+		return ReportError("Error ocurred during initialization");
 
 	/*
-		wait for all threads to be finished before leaving
+		wait for module's futures
 	*/
-	vFutures.clear();
+	CModuleManager::Get()->AwaitFutures();
+
+	/*
+		shutdown everything
+	*/
+	CModuleManager::Get()->ShutdownAll();
 
 	return 0;
 }
