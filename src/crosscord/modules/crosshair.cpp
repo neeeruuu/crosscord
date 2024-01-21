@@ -2,6 +2,10 @@
 #include "config.h"
 #include "overlay.h"
 
+#include "util/log.h"
+
+#include <spng.h>
+
 INSTANTIATE_SINGLETON(CCrosshair);
 
 /*
@@ -86,6 +90,8 @@ void CCrosshair::Clear(SFrameInfo* pFrameInfo) {
 	}
 
 	SColor Color{ 0 };
+
+	m_PrevSettings.m_ImageSettings.m_Buffer = 0;
 
 	unsigned int iPosX = (pFrameInfo->m_Width / 2) + m_PrevSettings.m_Offset[0];
 	unsigned int iPosY = (pFrameInfo->m_Height / 2) + m_PrevSettings.m_Offset[1];
@@ -234,8 +240,102 @@ void CCrosshair::DrawArrow(SFrameInfo* pFrameInfo, SCrosshairSettings* pSettings
 	}
 }
 
-void CCrosshair::DrawImage(SFrameInfo* /*pFrameInfo*/, SCrosshairSettings* /*pSettings*/, unsigned int /*iCenterX*/, unsigned int /*iCenterY*/, SColor* /*pColor*/) {
+void CCrosshair::DrawImage(SFrameInfo* pFrameInfo, SCrosshairSettings* pSettings, unsigned int iCenterX, unsigned int iCenterY, SColor* pColor) {
+	if (!pSettings->m_ImageSettings.m_Buffer) {
+		unsigned int iStartX = iCenterX - (pSettings->m_ImageSettings.m_Width / 2);
+		unsigned int iStartY = iCenterY - (pSettings->m_ImageSettings.m_Height / 2);
 
+		unsigned int iEndX = iCenterX + (pSettings->m_ImageSettings.m_Width / 2);
+		unsigned int iEndY = iCenterY + (pSettings->m_ImageSettings.m_Height / 2);
+
+		DrawRect(pFrameInfo, iStartX, iStartY, iEndX, iEndY, pColor);
+		return;
+	}
+
+	SColor* pPixelBuffer = reinterpret_cast<SColor*>(pFrameInfo->m_Pixels);
+
+	float fScale = pSettings->m_ImageSettings.m_Size / 1.f;
+	unsigned int iUnscaledY, iUnscaledX = 0;
+
+	ImageLock.lock();
+	unsigned int iScaledWidth = static_cast<unsigned int>(static_cast<float>(pSettings->m_ImageSettings.m_Width) * fScale);
+	unsigned int iScaledHeight = static_cast<unsigned int>(static_cast<float>(pSettings->m_ImageSettings.m_Height) * fScale);
+	for (unsigned int iY = 0; iY < iScaledHeight; ++iY) {
+		for (unsigned int iX = 0; iX < iScaledWidth; ++iX) {
+			unsigned int iDestX = iCenterX + (iX - iScaledWidth / 2);
+			unsigned int iDestY = iCenterY + (iY - iScaledHeight / 2);
+
+			if (iDestX <= pFrameInfo->m_Width && iDestY <= pFrameInfo->m_Height) {
+				iUnscaledY = static_cast<unsigned int>(static_cast<float>(iY) / fScale);
+				iUnscaledX = static_cast<unsigned int>(static_cast<float>(iX) / fScale);
+
+				SColor pImageCol = reinterpret_cast<SColor*>(pSettings->m_ImageSettings.m_Buffer)[iUnscaledY * pSettings->m_ImageSettings.m_Width + iUnscaledX];
+				SColor* pPixel = &pPixelBuffer[iDestY * pFrameInfo->m_Width + iDestX];
+				pPixel->r = pImageCol.b;
+				pPixel->g = pImageCol.g;
+				pPixel->b = pImageCol.r;
+				pPixel->a = static_cast<unsigned char>(pImageCol.a * pSettings->m_ImageSettings.m_Alpha);
+			}
+		}
+	}
+	ImageLock.unlock();
+}
+
+void CCrosshair::LoadImg(const char* cPath) {
+	FILE* pFile = nullptr;
+	size_t lImageSize = 0;
+	void* pImageBuffer = nullptr;
+
+	if (fopen_s(&pFile, cPath, "rb") || !pFile) {
+		LogError("Unable to open file: {}", cPath);
+		return;
+	}
+
+	spng_ctx* pContext = spng_ctx_new(0);
+	if (spng_set_png_file(pContext, pFile)) {
+		LogError("Failed to set decoder png for file: {}", cPath);
+		spng_ctx_free(pContext);
+		return;
+	}
+
+	if (spng_decoded_image_size(pContext, SPNG_FMT_RGBA8, &lImageSize)) {
+		LogError("Failed to get decoded image size for file: {}", cPath);
+		spng_ctx_free(pContext);
+		return;
+	}
+	pImageBuffer = malloc(lImageSize);
+
+	if (!pImageBuffer) {
+		LogError("Failed to allocate memory for png");
+		spng_ctx_free(pContext);
+		return;
+	}
+
+	if (spng_decode_image(pContext, pImageBuffer, lImageSize, SPNG_FMT_RGBA8, 0)) {
+		LogError("Failed to decode image for file: {}", cPath);
+		spng_ctx_free(pContext);
+		return;
+	}
+
+	spng_ihdr ImgHeader;
+	if (spng_get_ihdr(pContext, &ImgHeader)) {
+		LogError("Failed to get header for file: {}", cPath);
+		spng_ctx_free(pContext);
+		return;
+	}
+
+	ImageLock.lock();
+	if (m_Settings.m_ImageSettings.m_Buffer)
+		free(m_Settings.m_ImageSettings.m_Buffer);
+	m_Settings.m_ImageSettings.m_Buffer = pImageBuffer;
+	m_Settings.m_ImageSettings.m_Height = ImgHeader.height;
+	m_Settings.m_ImageSettings.m_Width = ImgHeader.width;
+	ImageLock.unlock();
+
+	g_CB_CrosshairImageLoaded->Run(pImageBuffer, ImgHeader.width, ImgHeader.height);
+
+	spng_ctx_free(pContext);
+	fclose(pFile);
 }
 
 void CCrosshair::LoadConfig(nlohmann::json* pJSON) {

@@ -5,6 +5,7 @@
 #include "util/callbacks.h"
 
 #include <vector>
+#include <mutex>
 
 /*
 	TO-DO:
@@ -53,12 +54,11 @@ struct SCrosshairSettings {
 		unsigned int m_Height = 0;
 		unsigned int m_Width = 0;
 
-		float m_Size = 100.f;
+		float m_Size = 1.f;
 		float m_Alpha = 1.f;
 		void* m_Buffer = nullptr;
 	} m_ImageSettings;
 };
-
 
 class CCrosshair : public IModule {
 	DECLARE_SINGLETON(CCrosshair);
@@ -78,7 +78,10 @@ public:
 	void LoadConfig(nlohmann::json* pJSON);
 	void SaveConfig(nlohmann::json& pJSON);
 
+	void LoadImg(const char* cPath);
 private:
+	std::mutex ImageLock;
+
 	void DrawRect(SFrameInfo* pFrameInfo, unsigned int iStartX, unsigned int iStartY, unsigned int iEndX, unsigned int iEndY, SColor* pColor);
 
 	void DrawCross(SFrameInfo* pFrameInfo, SCrosshairSettings* pSettings, unsigned int iCenterX, unsigned int iCenterY, SColor* pColor);
@@ -90,4 +93,5 @@ private:
 	CCrosshair() {};
 };
 
+// passes: void* pImageBuffer, unsigned int iWidth, unsigned int iHeight
 inline CCallbackEvent* g_CB_CrosshairImageLoaded = new CCallbackEvent();

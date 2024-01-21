@@ -12,6 +12,8 @@
 #include <backends/imgui_impl_win32.h>
 #include <backends/imgui_impl_glfw.h>
 
+#include <GLFW/glfw3.h>
+
 #include <imfilebrowser.h>
 
 INSTANTIATE_SINGLETON(CUserInterface);
@@ -35,6 +37,12 @@ bool CUserInterface::Initialize() {
 	m_Callbacks.push_back(
 		g_CB_GLShutdown->Register([]() {
 			CUserInterface::Get()->CleanGLObjects();
+		}, true)
+	);
+
+	m_Callbacks.push_back(
+		g_CB_CrosshairImageLoaded->Register([](void* pImageBuffer, unsigned int iWidth, unsigned int iHeight) {
+			CUserInterface::Get()->LoadImageFromBuffer(pImageBuffer, iWidth, iHeight);
 		}, true)
 	);
 
@@ -277,6 +285,69 @@ void CUserInterface::DrawArrowSettings(CCrosshair* pCrosshair) {
 	ImGui::SliderInt("Width", reinterpret_cast<int*>(&pCrosshair->m_Settings.m_ArrowSettings.m_Width), 0, 64);
 }
 
-void CUserInterface::DrawImageSettings(CCrosshair* /*pCrosshair*/) {
+void CUserInterface::DrawImageSettings(CCrosshair* pCrosshair) {
+	static ImGui::FileBrowser ImageDialog;
+	static bool bInit = false;
+	if (!bInit) {
+		ImageDialog.SetTitle("Select an image");
+		ImageDialog.SetTypeFilters({ ".png" });
+		//ImageDialog.SetPwd(m_LastImagePath.substr(0, m_LastImagePath.length() - 1));
+		bInit = true;
+	}
 
+	ImVec2 RegionAvail = ImGui::GetContentRegionAvail();
+
+	ImGui::SetCursorPosX(RegionAvail.x / 2 - ((ImGui::CalcTextSize("Open image").x + ImGui::GetStyle().FramePadding.x * 2) / 2));
+	if (ImGui::Button("Open image")) {
+		ImageDialog.Open();
+	}
+
+	ImageDialog.Display();
+
+	if (ImageDialog.HasSelected()) {
+		std::string sFilePath = ImageDialog.GetSelected().string();
+		CCrosshair::Get()->LoadImg(sFilePath.c_str());
+
+		//m_LastImagePath = ImageDialog.GetSelected().remove_filename().string();
+		ImageDialog.ClearSelected();
+	}
+
+	float fWidth = RegionAvail.x / 3;
+	if (m_ImagePreviewTex) {
+		#pragma warning(push)
+		#pragma warning(disable: 4312)
+				ImGui::Image(reinterpret_cast<void*>(m_ImagePreviewTex), { fWidth, fWidth / m_ImageAspectRatio });
+		#pragma warning(pop)
+	}
+	else
+		ImGui::Image(0, { fWidth, fWidth });
+
+	ImGui::SameLine();
+	ImVec2 vCursorPos = ImGui::GetCursorPos();
+	ImGui::SetNextItemWidth(fWidth * 1.5f);
+	ImGui::SliderFloat("Size", &pCrosshair->m_Settings.m_ImageSettings.m_Size, 0.1f, 1.f);
+
+	ImGui::SetNextItemWidth(fWidth * 1.5f);
+	ImGui::SetCursorPos({ vCursorPos.x, vCursorPos.y + ImGui::GetTextLineHeight() * 2 });
+	ImGui::SliderFloat("Alpha", &pCrosshair->m_Settings.m_ImageSettings.m_Alpha, 0.f, 1.f);
+}
+
+void CUserInterface::LoadImageFromBuffer(void* pImageBuffer, unsigned int iWidth, unsigned int iHeight) {
+	if (m_ImagePreviewTex)
+		glDeleteTextures(1, &m_ImagePreviewTex);
+
+	GLint iPrevTexture;
+	glGetIntegerv(GL_TEXTURE_BINDING_2D, &iPrevTexture);
+
+	glGenTextures(1, &m_ImagePreviewTex);
+	glBindTexture(GL_TEXTURE_2D, m_ImagePreviewTex);
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8,
+		static_cast<GLsizei>(iWidth), static_cast<GLsizei>(iHeight), 0,
+		GL_RGBA, GL_UNSIGNED_BYTE,
+		reinterpret_cast<GLvoid*>(pImageBuffer));
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+	m_ImageAspectRatio = static_cast<float>(iWidth) / static_cast<float>(iHeight);
 }

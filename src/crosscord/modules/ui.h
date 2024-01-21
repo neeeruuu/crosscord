@@ -12,6 +12,8 @@ public:
 	virtual bool Shutdown() override;
 	virtual const char* GetName() override { return "UI"; }
 
+	void LoadImageFromBuffer(void* pImageBuffer, unsigned int iWidth, unsigned int iHeight);
+
 	// menu functions
 	void QueueBringToFront() { m_ShouldBringToFront = true; m_ShouldDraw = true; }
 private:
@@ -24,6 +26,9 @@ private:
 
 	float m_MinSize[2] = { 0 };
 	float m_MaxSize[2] = { 0 };
+
+	unsigned int m_ImagePreviewTex = 0;
+	float m_ImageAspectRatio = 0.f;
 
 	// callback functions
 	void SetupGLObjects(struct GLFWwindow* pWindow);
