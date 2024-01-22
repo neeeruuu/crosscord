@@ -25,25 +25,25 @@ bool CUserInterface::Initialize() {
 	m_Callbacks.push_back(
 		g_CB_GLInit->Register(+[](GLFWwindow* pWindow) {
 			CUserInterface::Get()->SetupGLObjects(pWindow);
-		}, true)
+			}, true)
 	);
 
 	m_Callbacks.push_back(
 		g_CB_GLDraw->Register(+[]() {
 			CUserInterface::Get()->Draw();
-		}, true)
+			}, true)
 	);
 
 	m_Callbacks.push_back(
 		g_CB_GLShutdown->Register(+[]() {
 			CUserInterface::Get()->CleanGLObjects();
-		}, true)
+			}, true)
 	);
 
 	m_Callbacks.push_back(
 		g_CB_CrosshairImageLoaded->Register(+[](void* pImageBuffer, unsigned int iWidth, unsigned int iHeight) {
 			CUserInterface::Get()->LoadImageFromBuffer(pImageBuffer, iWidth, iHeight);
-		}, true)
+			}, true)
 	);
 
 	return true;
@@ -187,7 +187,7 @@ void CUserInterface::Draw() {
 					m_ShouldBringToFront = false;
 				}
 			}
-			
+
 			DrawContents();
 		}
 
@@ -226,7 +226,7 @@ void CUserInterface::CleanGLObjects() {
 
 	m_ShutdownQueued = false;
 	m_Initialized = false;
-	
+
 	for (CCallback* Callback : m_Callbacks) { delete Callback; }
 	m_Callbacks.clear();
 
@@ -287,12 +287,6 @@ void CUserInterface::DrawContents() {
 	SCrosshairSettings SettingsCopy = pCrosshair->m_Settings;
 
 	ImGui::Checkbox("Enabled", &pCrosshair->m_Settings.m_Enabled);
-	
-	ImGui::SameLine();
-
-	ImGui::SetCursorPosX(ImGui::GetContentRegionAvail().x + ImGui::CalcTextSize("Close").x + Style.FramePadding.x * 2);
-	if (ImGui::Button("Close"))
-		CModuleManager::Get()->ShutdownAll();
 
 	ImGui::Text("Type:");
 
@@ -302,7 +296,7 @@ void CUserInterface::DrawContents() {
 
 	ImGui::SameLine();
 	ImGui::Text("Color:");
-	
+
 	ImGui::SameLine();
 	ImGui::ColorEdit4("##Color", pCrosshair->m_Settings.m_Color, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoOptions | ImGuiColorEditFlags_NoLabel | ImGuiColorEditFlags_AlphaBar);
 
@@ -336,18 +330,18 @@ void CUserInterface::DrawContents() {
 	ImGui::Separator();
 
 	switch (pCrosshair->m_Settings.m_Type) {
-		case CROSSHAIR_CROSS:
-			DrawCrossSettings(pCrosshair);
-			break;
-		case CROSSHAIR_CIRCLE:
-			DrawCircleSettings(pCrosshair);
-			break;
-		case CROSSHAIR_ARROW:
-			DrawArrowSettings(pCrosshair);
-			break;
-		case CROSSHAIR_IMAGE:
-			DrawImageSettings(pCrosshair);
-			break;
+	case CROSSHAIR_CROSS:
+		DrawCrossSettings(pCrosshair);
+		break;
+	case CROSSHAIR_CIRCLE:
+		DrawCircleSettings(pCrosshair);
+		break;
+	case CROSSHAIR_ARROW:
+		DrawArrowSettings(pCrosshair);
+		break;
+	case CROSSHAIR_IMAGE:
+		DrawImageSettings(pCrosshair);
+		break;
 	}
 
 	if (memcmp(&SettingsCopy, &pCrosshair->m_Settings, sizeof(SCrosshairSettings))) {
@@ -405,10 +399,10 @@ void CUserInterface::DrawImageSettings(CCrosshair* pCrosshair) {
 
 	float fWidth = RegionAvail.x / 3;
 	if (m_ImagePreviewTex) {
-		#pragma warning(push)
-		#pragma warning(disable: 4312)
-				ImGui::Image(reinterpret_cast<void*>(m_ImagePreviewTex), { fWidth, fWidth / m_ImageAspectRatio });
-		#pragma warning(pop)
+#pragma warning(push)
+#pragma warning(disable: 4312)
+		ImGui::Image(reinterpret_cast<void*>(m_ImagePreviewTex), { fWidth, fWidth / m_ImageAspectRatio });
+#pragma warning(pop)
 	}
 	else
 		ImGui::Image(0, { fWidth, fWidth });
