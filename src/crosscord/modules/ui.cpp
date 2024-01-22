@@ -172,8 +172,10 @@ void CUserInterface::Draw() {
 		draw menu
 	*/
 	if (m_ShouldDraw) {
+		ImGui::SetNextWindowCollapsed(false);
 		ImGui::SetNextWindowSizeConstraints({ m_MinSize[0], m_MinSize[1] }, { m_MaxSize[0], m_MaxSize[1] });
-		if (ImGui::Begin("CrossCord " CROSSCORD_VER, &m_ShouldDraw, ImGuiWindowFlags_NoCollapse)) {
+		if (ImGui::Begin("CrossCord " CROSSCORD_VER, &m_NotClosed)) {
+
 			/*
 				handle DPI changes and set window focus if needed
 			*/
@@ -185,9 +187,14 @@ void CUserInterface::Draw() {
 					m_ShouldBringToFront = false;
 				}
 			}
-
+			
 			DrawContents();
 		}
+
+		if (ImGui::IsWindowCollapsed()) {
+			m_ShouldDraw = false;
+		}
+
 		ImGui::End();
 	}
 
@@ -208,6 +215,9 @@ void CUserInterface::Draw() {
 	*/
 	if (m_ShutdownQueued)
 		CleanGLObjects();
+
+	if (!m_NotClosed)
+		CModuleManager::Get()->ShutdownAll();
 }
 
 void CUserInterface::CleanGLObjects() {
