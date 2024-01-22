@@ -23,25 +23,25 @@ INSTANTIATE_SINGLETON(CUserInterface);
 */
 bool CUserInterface::Initialize() {
 	m_Callbacks.push_back(
-		g_CB_GLInit->Register([](GLFWwindow* pWindow) {
+		g_CB_GLInit->Register(+[](GLFWwindow* pWindow) {
 			CUserInterface::Get()->SetupGLObjects(pWindow);
 		}, true)
 	);
 
 	m_Callbacks.push_back(
-		g_CB_GLDraw->Register([]() {
+		g_CB_GLDraw->Register(+[]() {
 			CUserInterface::Get()->Draw();
 		}, true)
 	);
 
 	m_Callbacks.push_back(
-		g_CB_GLShutdown->Register([]() {
+		g_CB_GLShutdown->Register(+[]() {
 			CUserInterface::Get()->CleanGLObjects();
 		}, true)
 	);
 
 	m_Callbacks.push_back(
-		g_CB_CrosshairImageLoaded->Register([](void* pImageBuffer, unsigned int iWidth, unsigned int iHeight) {
+		g_CB_CrosshairImageLoaded->Register(+[](void* pImageBuffer, unsigned int iWidth, unsigned int iHeight) {
 			CUserInterface::Get()->LoadImageFromBuffer(pImageBuffer, iWidth, iHeight);
 		}, true)
 	);
