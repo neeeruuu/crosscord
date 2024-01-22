@@ -23,6 +23,7 @@ private:
 	bool m_ShutdownQueued = false;
 	bool m_ShouldDraw = true;
 	bool m_ShouldBringToFront = true;
+	bool m_NotClosed = true;
 
 	float m_MinSize[2] = { 0 };
 	float m_MaxSize[2] = { 0 };

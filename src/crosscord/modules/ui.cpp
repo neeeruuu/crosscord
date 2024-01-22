@@ -23,27 +23,27 @@ INSTANTIATE_SINGLETON(CUserInterface);
 */
 bool CUserInterface::Initialize() {
 	m_Callbacks.push_back(
-		g_CB_GLInit->Register([](GLFWwindow* pWindow) {
+		g_CB_GLInit->Register(+[](GLFWwindow* pWindow) {
 			CUserInterface::Get()->SetupGLObjects(pWindow);
-		}, true)
+			}, true)
 	);
 
 	m_Callbacks.push_back(
-		g_CB_GLDraw->Register([]() {
+		g_CB_GLDraw->Register(+[]() {
 			CUserInterface::Get()->Draw();
-		}, true)
+			}, true)
 	);
 
 	m_Callbacks.push_back(
-		g_CB_GLShutdown->Register([]() {
+		g_CB_GLShutdown->Register(+[]() {
 			CUserInterface::Get()->CleanGLObjects();
-		}, true)
+			}, true)
 	);
 
 	m_Callbacks.push_back(
-		g_CB_CrosshairImageLoaded->Register([](void* pImageBuffer, unsigned int iWidth, unsigned int iHeight) {
+		g_CB_CrosshairImageLoaded->Register(+[](void* pImageBuffer, unsigned int iWidth, unsigned int iHeight) {
 			CUserInterface::Get()->LoadImageFromBuffer(pImageBuffer, iWidth, iHeight);
-		}, true)
+			}, true)
 	);
 
 	return true;
@@ -76,6 +76,87 @@ void CUserInterface::SetupGLObjects(GLFWwindow* pWindow) {
 	m_MaxSize[0] = WND_DEF_X * MAX_MULT;
 	m_MaxSize[1] = WND_DEF_Y * MAX_MULT;
 
+	/*
+		initialize the custom theme (dracula styled)
+	*/
+	{
+		auto& colors = ImGui::GetStyle().Colors;
+		colors[ImGuiCol_WindowBg] = ImVec4{ 0.1f, 0.1f, 0.13f, 1.0f };
+		colors[ImGuiCol_MenuBarBg] = ImVec4{ 0.16f, 0.16f, 0.21f, 1.0f };
+
+		// Border
+		colors[ImGuiCol_Border] = ImVec4{ 0.44f, 0.37f, 0.61f, 0.29f };
+		colors[ImGuiCol_BorderShadow] = ImVec4{ 0.0f, 0.0f, 0.0f, 0.24f };
+
+		// Text
+		colors[ImGuiCol_Text] = ImVec4{ 1.0f, 1.0f, 1.0f, 1.0f };
+		colors[ImGuiCol_TextDisabled] = ImVec4{ 0.5f, 0.5f, 0.5f, 1.0f };
+
+		// Headers
+		colors[ImGuiCol_Header] = ImVec4{ 0.13f, 0.13f, 0.17f, 1.0f };
+		colors[ImGuiCol_HeaderHovered] = ImVec4{ 0.19f, 0.2f, 0.25f, 1.0f };
+		colors[ImGuiCol_HeaderActive] = ImVec4{ 0.16f, 0.16f, 0.21f, 1.0f };
+
+		// Buttons
+		colors[ImGuiCol_Button] = ImVec4{ 0.13f, 0.13f, 0.17f, 1.0f };
+		colors[ImGuiCol_ButtonHovered] = ImVec4{ 0.19f, 0.2f, 0.25f, 1.0f };
+		colors[ImGuiCol_ButtonActive] = ImVec4{ 0.16f, 0.16f, 0.21f, 1.0f };
+		colors[ImGuiCol_CheckMark] = ImVec4{ 0.74f, 0.58f, 0.98f, 1.0f };
+
+		// Popups
+		colors[ImGuiCol_PopupBg] = ImVec4{ 0.1f, 0.1f, 0.13f, 0.92f };
+
+		// Slider
+		colors[ImGuiCol_SliderGrab] = ImVec4{ 0.44f, 0.37f, 0.61f, 0.54f };
+		colors[ImGuiCol_SliderGrabActive] = ImVec4{ 0.74f, 0.58f, 0.98f, 0.54f };
+
+		// Frame BG
+		colors[ImGuiCol_FrameBg] = ImVec4{ 0.13f, 0.13f, 0.17f, 1.0f };
+		colors[ImGuiCol_FrameBgHovered] = ImVec4{ 0.19f, 0.2f, 0.25f, 1.0f };
+		colors[ImGuiCol_FrameBgActive] = ImVec4{ 0.16f, 0.16f, 0.21f, 1.0f };
+
+		// Tabs
+		colors[ImGuiCol_Tab] = ImVec4{ 0.16f, 0.16f, 0.21f, 1.0f };
+		colors[ImGuiCol_TabHovered] = ImVec4{ 0.24f, 0.24f, 0.32f, 1.0f };
+		colors[ImGuiCol_TabActive] = ImVec4{ 0.2f, 0.22f, 0.27f, 1.0f };
+		colors[ImGuiCol_TabUnfocused] = ImVec4{ 0.16f, 0.16f, 0.21f, 1.0f };
+		colors[ImGuiCol_TabUnfocusedActive] = ImVec4{ 0.16f, 0.16f, 0.21f, 1.0f };
+
+		// Title
+		colors[ImGuiCol_TitleBg] = ImVec4{ 0.16f, 0.16f, 0.21f, 1.0f };
+		colors[ImGuiCol_TitleBgActive] = ImVec4{ 0.16f, 0.16f, 0.21f, 1.0f };
+		colors[ImGuiCol_TitleBgCollapsed] = ImVec4{ 0.16f, 0.16f, 0.21f, 1.0f };
+
+		// Scrollbar
+		colors[ImGuiCol_ScrollbarBg] = ImVec4{ 0.1f, 0.1f, 0.13f, 1.0f };
+		colors[ImGuiCol_ScrollbarGrab] = ImVec4{ 0.16f, 0.16f, 0.21f, 1.0f };
+		colors[ImGuiCol_ScrollbarGrabHovered] = ImVec4{ 0.19f, 0.2f, 0.25f, 1.0f };
+		colors[ImGuiCol_ScrollbarGrabActive] = ImVec4{ 0.24f, 0.24f, 0.32f, 1.0f };
+
+		// Seperator
+		colors[ImGuiCol_Separator] = ImVec4{ 0.44f, 0.37f, 0.61f, 1.0f };
+		colors[ImGuiCol_SeparatorHovered] = ImVec4{ 0.74f, 0.58f, 0.98f, 1.0f };
+		colors[ImGuiCol_SeparatorActive] = ImVec4{ 0.84f, 0.58f, 1.0f, 1.0f };
+
+		// Resize Grip
+		colors[ImGuiCol_ResizeGrip] = ImVec4{ 0.44f, 0.37f, 0.61f, 0.29f };
+		colors[ImGuiCol_ResizeGripHovered] = ImVec4{ 0.74f, 0.58f, 0.98f, 0.29f };
+		colors[ImGuiCol_ResizeGripActive] = ImVec4{ 0.84f, 0.58f, 1.0f, 0.29f };
+
+		// Docking
+		colors[ImGuiCol_DockingPreview] = ImVec4{ 0.44f, 0.37f, 0.61f, 1.0f };
+
+		auto& style = ImGui::GetStyle();
+		style.TabRounding = 4;
+		style.ScrollbarRounding = 9;
+		style.WindowRounding = 7;
+		style.GrabRounding = 3;
+		style.FrameRounding = 3;
+		style.PopupRounding = 4;
+		style.ChildRounding = 4;
+		style.WindowMenuButtonPosition = ImGuiDir_Right;
+	}
+
 	m_Initialized = true;
 }
 
@@ -91,8 +172,10 @@ void CUserInterface::Draw() {
 		draw menu
 	*/
 	if (m_ShouldDraw) {
+		ImGui::SetNextWindowCollapsed(false);
 		ImGui::SetNextWindowSizeConstraints({ m_MinSize[0], m_MinSize[1] }, { m_MaxSize[0], m_MaxSize[1] });
-		if (ImGui::Begin("CrossCord " CROSSCORD_VER, &m_ShouldDraw, ImGuiWindowFlags_NoCollapse)) {
+		if (ImGui::Begin("CrossCord " CROSSCORD_VER, &m_NotClosed)) {
+
 			/*
 				handle DPI changes and set window focus if needed
 			*/
@@ -107,6 +190,11 @@ void CUserInterface::Draw() {
 
 			DrawContents();
 		}
+
+		if (ImGui::IsWindowCollapsed()) {
+			m_ShouldDraw = false;
+		}
+
 		ImGui::End();
 	}
 
@@ -127,6 +215,9 @@ void CUserInterface::Draw() {
 	*/
 	if (m_ShutdownQueued)
 		CleanGLObjects();
+
+	if (!m_NotClosed)
+		CModuleManager::Get()->ShutdownAll();
 }
 
 void CUserInterface::CleanGLObjects() {
@@ -135,7 +226,7 @@ void CUserInterface::CleanGLObjects() {
 
 	m_ShutdownQueued = false;
 	m_Initialized = false;
-	
+
 	for (CCallback* Callback : m_Callbacks) { delete Callback; }
 	m_Callbacks.clear();
 
@@ -196,12 +287,6 @@ void CUserInterface::DrawContents() {
 	SCrosshairSettings SettingsCopy = pCrosshair->m_Settings;
 
 	ImGui::Checkbox("Enabled", &pCrosshair->m_Settings.m_Enabled);
-	
-	ImGui::SameLine();
-
-	ImGui::SetCursorPosX(ImGui::GetContentRegionAvail().x + ImGui::CalcTextSize("Close").x + Style.FramePadding.x * 2);
-	if (ImGui::Button("Close"))
-		CModuleManager::Get()->ShutdownAll();
 
 	ImGui::Text("Type:");
 
@@ -211,7 +296,7 @@ void CUserInterface::DrawContents() {
 
 	ImGui::SameLine();
 	ImGui::Text("Color:");
-	
+
 	ImGui::SameLine();
 	ImGui::ColorEdit4("##Color", pCrosshair->m_Settings.m_Color, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoOptions | ImGuiColorEditFlags_NoLabel | ImGuiColorEditFlags_AlphaBar);
 
@@ -245,18 +330,18 @@ void CUserInterface::DrawContents() {
 	ImGui::Separator();
 
 	switch (pCrosshair->m_Settings.m_Type) {
-		case CROSSHAIR_CROSS:
-			DrawCrossSettings(pCrosshair);
-			break;
-		case CROSSHAIR_CIRCLE:
-			DrawCircleSettings(pCrosshair);
-			break;
-		case CROSSHAIR_ARROW:
-			DrawArrowSettings(pCrosshair);
-			break;
-		case CROSSHAIR_IMAGE:
-			DrawImageSettings(pCrosshair);
-			break;
+	case CROSSHAIR_CROSS:
+		DrawCrossSettings(pCrosshair);
+		break;
+	case CROSSHAIR_CIRCLE:
+		DrawCircleSettings(pCrosshair);
+		break;
+	case CROSSHAIR_ARROW:
+		DrawArrowSettings(pCrosshair);
+		break;
+	case CROSSHAIR_IMAGE:
+		DrawImageSettings(pCrosshair);
+		break;
 	}
 
 	if (memcmp(&SettingsCopy, &pCrosshair->m_Settings, sizeof(SCrosshairSettings))) {
@@ -314,10 +399,10 @@ void CUserInterface::DrawImageSettings(CCrosshair* pCrosshair) {
 
 	float fWidth = RegionAvail.x / 3;
 	if (m_ImagePreviewTex) {
-		#pragma warning(push)
-		#pragma warning(disable: 4312)
-				ImGui::Image(reinterpret_cast<void*>(m_ImagePreviewTex), { fWidth, fWidth / m_ImageAspectRatio });
-		#pragma warning(pop)
+#pragma warning(push)
+#pragma warning(disable: 4312)
+		ImGui::Image(reinterpret_cast<void*>(m_ImagePreviewTex), { fWidth, fWidth / m_ImageAspectRatio });
+#pragma warning(pop)
 	}
 	else
 		ImGui::Image(0, { fWidth, fWidth });
